@@ -14,7 +14,7 @@ if (import.meta.env.MODE === "production") {
   basePath = "/";
 }
 
-let container, camera, scene, renderer, cube, controls;
+let container, camera, scene, renderer, controls;
 
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
@@ -77,12 +77,7 @@ function init() {
   );
   scene.add(marker);
 
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshPhongMaterial({
-    color: 0x00ff00,
-    //wireframe: true,
-  });
-  cube = new THREE.Mesh(geometry, material);
+
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
   scene.add(directionalLight);
@@ -110,8 +105,7 @@ function init() {
   const helper = new THREE.DirectionalLightHelper(directionalLight, 5);
   scene.add(helper);
 
-  const light = new THREE.AmbientLight(0x404040); // soft white light
-  scene.add(light);
+  
 
   const axesHelper = new THREE.AxesHelper(5);
   scene.add(axesHelper);
@@ -208,7 +202,7 @@ function loadmodels() {
       //   //Adds shadows to the model
       //   model.traverse(function (node) {
       //     if (node.material) {
-      //       node.material.side = THREE.FrontSideSide;
+      //       node.material.side = THREE.FrontSide;
       //       node.castShadow = true;
       //       node.receiveShadow = true;
       //     }
@@ -224,7 +218,7 @@ function loadmodels() {
         model.position.set(0, 0, 0);
         model.traverse(function (node) {
           if (node.material) {
-            node.material.side = THREE.FrontSideSide;
+            node.material.side = THREE.FrontSide;
             node.castShadow = true;
             node.receiveShadow = true;
           }
@@ -239,7 +233,7 @@ function loadmodels() {
         model2.position.set(0, 0, 0);
         model2.traverse(function (node) {
           if (node.material) {
-            node.material.side = THREE.FrontSideSide;
+            node.material.side = THREE.FrontSide;
             node.castShadow = true;
             node.receiveShadow = true;
           }
