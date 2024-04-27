@@ -75,12 +75,6 @@ function init() {
   );
   scene.add(marker);
 
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshPhongMaterial({
-    color: 0x00ff00,
-    //wireframe: true,
-  });
-
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
   scene.add(directionalLight);
 
@@ -202,7 +196,7 @@ function loadmodels() {
       //   //Adds shadows to the model
       //   model.traverse(function (node) {
       //     if (node.material) {
-      //       node.material.side = THREE.FrontSideSide;
+      //       node.material.side = THREE.FrontSide;
       //       node.castShadow = true;
       //       node.receiveShadow = true;
       //     }
@@ -218,7 +212,7 @@ function loadmodels() {
         model.position.set(0, 0, 0);
         model.traverse(function (node) {
           if (node.material) {
-            node.material.side = THREE.FrontSideSide;
+            node.material.side = THREE.FrontSide;
             node.castShadow = true;
             node.receiveShadow = true;
           }
@@ -233,7 +227,7 @@ function loadmodels() {
         model2.position.set(0, 0, 0);
         model2.traverse(function (node) {
           if (node.material) {
-            node.material.side = THREE.FrontSideSide;
+            node.material.side = THREE.FrontSide;
             node.castShadow = true;
             node.receiveShadow = true;
           }
