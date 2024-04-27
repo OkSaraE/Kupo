@@ -14,7 +14,7 @@ if (import.meta.env.MODE === "production") {
   basePath = "/";
 }
 
-let container, camera, scene, renderer, cube, controls;
+let container, camera, scene, renderer, controls;
 
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
@@ -43,10 +43,6 @@ function init() {
 
   scene = new THREE.Scene();
   clock = new THREE.Clock();
-
-  scene.add(teleportgroup);
-  scene.add(movegroup);
-
   camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
@@ -58,6 +54,9 @@ function init() {
     antialias: true,
   });
 
+  scene.add(teleportgroup);
+  scene.add(movegroup);
+
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
@@ -66,10 +65,9 @@ function init() {
   renderer.outputEncoding = THREE.sRGBEncoding;
 
   loadmodels();
+  initVR();
 
   document.body.appendChild(renderer.domElement);
-
-  initVR();
 
   marker = new THREE.Mesh(
     new THREE.CircleGeometry(0.25, 32).rotateX(-Math.PI / 2),
@@ -82,7 +80,6 @@ function init() {
     color: 0x00ff00,
     //wireframe: true,
   });
-  cube = new THREE.Mesh(geometry, material);
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
   scene.add(directionalLight);
@@ -110,18 +107,15 @@ function init() {
   const helper = new THREE.DirectionalLightHelper(directionalLight, 5);
   scene.add(helper);
 
-  const light = new THREE.AmbientLight(0x404040); // soft white light
-  scene.add(light);
-
   const axesHelper = new THREE.AxesHelper(5);
   scene.add(axesHelper);
 
-  camera.position.z = 5;
+  // camera
+  camera.position.set = 5;
   camera.position.y = 1;
   camera.position.x = 1;
   camera.lookAt(axesHelper.position);
 
-  // camera
   controls = new OrbitControls(camera, renderer.domElement);
   controls.update();
 }
