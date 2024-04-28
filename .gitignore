@@ -11,7 +11,10 @@ node_modules
 dist
 dist-ssr
 *.local
+
+
 build
+testWorld
 
 # Editor directories and files
 .vscode/*
