@@ -20,6 +20,7 @@ let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 let raycaster;
 let clock, mixer;
+let listener, sound, audioLoader;
 
 let marker, baseReferenceSpace;
 let INTERSECTION;
@@ -27,7 +28,7 @@ let INTERSECTION;
 const intersected = [];
 const tempMatrix = new THREE.Matrix4();
 //list of movable objects
-const modelarray = ["cube1", "cube2"];
+const modelarray = ["cube1", "cube2", "cube"];
 
 //Groups
 let teleportgroup = new THREE.Group();
@@ -49,6 +50,10 @@ function init() {
     0.1,
     1000
   );
+
+  listener = new THREE.AudioListener();
+  camera.add(listener);
+  sound = new THREE.PositionalAudio(listener);
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -112,6 +117,14 @@ function init() {
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.update();
+
+  //Radio
+  audioLoader = new THREE.AudioLoader();
+  audioLoader.load("sounds/testsound.mp3", function (buffer) {
+    sound.setBuffer(buffer);
+    sound.setRefDistance(10);
+    sound.play();
+  });
 }
 
 function initVR() {
@@ -204,7 +217,7 @@ function loadmodels() {
 
       // Test models Delete Later
       const loader = new GLTFLoader().setPath(basePath);
-      loader.load("testWorld/ground.gltf", async function (gltf) {
+      loader.load("kupoli/testing.gltf", async function (gltf) {
         const model = gltf.scene;
         await renderer.compileAsync(model, camera, scene);
         model.position.set(0, 0, 0);
@@ -215,7 +228,7 @@ function loadmodels() {
             node.receiveShadow = true;
           }
         });
-        scene.add(model);
+        teleportgroup.add(model);
       });
 
       const loader2 = new GLTFLoader().setPath(basePath);
@@ -231,6 +244,22 @@ function loadmodels() {
           }
         });
         movegroup.add(model2);
+      });
+
+      const loader3 = new GLTFLoader().setPath(basePath);
+      loader3.load("testWorld/Radio.gltf", async function (gltf) {
+        const model3 = gltf.scene;
+        await renderer.compileAsync(model3, camera, scene);
+        model3.position.set(30, 0, 30);
+        model3.traverse(function (node) {
+          if (node.material) {
+            node.material.side = THREE.FrontSide;
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        scene.add(model3);
+        model3.add(sound);
       });
     });
 }

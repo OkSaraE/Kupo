@@ -12,9 +12,10 @@ dist
 dist-ssr
 *.local
 
-
+sounds
 build
 testWorld
+3d-assets
 
 # Editor directories and files
 .vscode/*
