@@ -4,6 +4,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { VRButton } from "three/addons/webxr/VRButton.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
+import Stats from 'three/addons/libs/stats.module.js';
 
 //For Vite build
 let basePath;
@@ -14,7 +15,19 @@ if (import.meta.env.MODE === "production") {
   basePath = "/";
 }
 
-let container, camera, scene, renderer, controls;
+let container, camera, scene, renderer, controls, textureLoader, stats;
+
+//physics variables
+const gravityConstant = - 2.8;
+		let collisionConfiguration;
+		let dispatcher;
+		let broadphase;
+		let solver;
+		let softBodySolver;
+		let physicsWorld;
+		const rigidBodies = [];
+		const margin = 0.05;
+    let transformAux1;
 
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
@@ -27,7 +40,7 @@ let INTERSECTION;
 const intersected = [];
 const tempMatrix = new THREE.Matrix4();
 //list of movable objects
-const modelarray = ["cube1", "cube2"];
+const modelarray = ["cube1", "cube2", "EXAMPLE"];
 
 //Groups
 let teleportgroup = new THREE.Group();
@@ -35,7 +48,16 @@ teleportgroup.name = "Teleport-Group";
 let movegroup = new THREE.Group();
 movegroup.name = "Interaction-Group";
 
-init();
+Ammo().then( function ( AmmoLib ) {
+
+  Ammo = AmmoLib;
+
+  init();
+  animate();
+
+} );
+
+
 
 function init() {
   container = document.createElement("div");
@@ -49,11 +71,31 @@ function init() {
     0.1,
     1000
   );
+  
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
 
+  renderer.setAnimationLoop(function () {
+    cleanIntersected();
+    
+    moveMarker();
+    intersectObjects(controller1);
+    intersectObjects(controller2);
+    renderer.render(scene, camera);
+
+    renderer.setAnimationLoop(render);
+    
+    const delta = clock.getDelta();
+    console.log("yoyooyo");
+  
+    if (mixer !== undefined) {
+      mixer.update(delta);
+    }
+  });
+  
+  
   scene.add(teleportgroup);
   scene.add(movegroup);
 
@@ -66,6 +108,9 @@ function init() {
 
   loadmodels();
   initVR();
+  initPhysics();
+  createObjects();
+  
 
   document.body.appendChild(renderer.domElement);
 
@@ -103,16 +148,20 @@ function init() {
 
   const axesHelper = new THREE.AxesHelper(5);
   scene.add(axesHelper);
+  
 
   // camera
-  camera.position.set = 5;
-  camera.position.y = 1;
-  camera.position.x = 1;
+  camera.position.set = 10;
+  camera.position.y = 5;
+  camera.position.x = 5;
   camera.lookAt(axesHelper.position);
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.update();
+  
+
 }
+
 
 function initVR() {
   document.body.appendChild(VRButton.createButton(renderer));
@@ -123,6 +172,14 @@ function initVR() {
     "sessionstart",
     () => (baseReferenceSpace = renderer.xr.getReferenceSpace())
   );
+  textureLoader = new THREE.TextureLoader();
+  
+  stats = new Stats();
+  stats.domElement.style.position = 'absolute';
+  stats.domElement.style.top = '0px';
+  container.appendChild( stats.domElement );
+ 
+
   controller1 = renderer.xr.getController(0);
   controller1.addEventListener("selectstart", onSelectStart);
   controller1.addEventListener("selectend", onSelectEnd);
@@ -175,6 +232,142 @@ function initVR() {
 
   raycaster = new THREE.Raycaster();
 }
+function initPhysics() {
+
+  // Physics configuration
+
+  collisionConfiguration = new Ammo.btSoftBodyRigidBodyCollisionConfiguration();
+  dispatcher = new Ammo.btCollisionDispatcher( collisionConfiguration );
+  broadphase = new Ammo.btDbvtBroadphase();
+  solver = new Ammo.btSequentialImpulseConstraintSolver();
+  softBodySolver = new Ammo.btDefaultSoftBodySolver();
+  physicsWorld = new Ammo.btSoftRigidDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration, softBodySolver );
+  physicsWorld.setGravity( new Ammo.btVector3( 0, gravityConstant, 0 ) );
+  physicsWorld.getWorldInfo().set_m_gravity( new Ammo.btVector3( 0, gravityConstant, 0 ) );
+
+  transformAux1 = new Ammo.btTransform();
+
+}
+function createObjects() {
+
+  const pos = new THREE.Vector3();
+  const quat = new THREE.Quaternion();
+
+  // Ground
+  pos.set( 0, -0.5, 0 );
+  quat.set( 0, 0, 0, 1 );
+  const ground = createParalellepiped( 300, 1, 300, 0, pos, quat, new THREE.MeshPhongMaterial( { color: 0xFFFFFF, transparent: true, opacity: 0.0 } ) );
+  ground.castShadow = true;
+  ground.receiveShadow = true;
+  
+  
+
+
+  // cube
+  /* const cubeMass = 1.2;
+  const cubeRadius = 1;
+
+  const cube = new THREE.Mesh( new THREE.BoxGeometry( 1 , 1 ,1), new THREE.MeshBasicMaterial( { color: 0x202020 } ) );
+  cube.castShadow = true;
+  cube.receiveShadow = true;
+  const cubeShape = new Ammo.btBoxShape( cubeRadius );
+  cubeShape.setMargin( margin );
+  pos.set( - 3, 2, 0 );
+  quat.set( 0, 0, 0, 1 );
+  createRigidBody( cube, cubeShape, cubeMass, pos, quat );
+  cube.userData.physicsBody.setFriction( 0.5 );
+*/
+  // Wall
+  const brickMass = 0.2;
+  const brickLength = 1;
+  const brickDepth = 1;
+  const brickHeight = 1;
+  
+
+  pos.set( -2, 19, -5 );
+  quat.set( 0, 0, 0, 1 );
+  
+  
+
+
+      const brick = createParalellepiped( brickDepth, brickHeight, brickLength, brickMass, pos, quat, createMaterial() );
+      brick.castShadow = true;
+      brick.receiveShadow = true;
+      brick.name = "EXAMPLE";
+      movegroup.add(brick);
+
+}
+
+
+function createParalellepiped( sx, sy, sz, mass, pos, quat, material ) {
+
+  const threeObject = new THREE.Mesh( new THREE.BoxGeometry( sx, sy, sz, 1, 1, 1 ), material );
+  const shape = new Ammo.btBoxShape( new Ammo.btVector3( sx * 0.5, sy * 0.5, sz * 0.5 ) );
+  shape.setMargin( margin );
+
+
+  createRigidBody( threeObject, shape, mass, pos, quat );
+
+  return threeObject;
+
+}
+
+function createRigidBody( threeObject, physicsShape, mass, pos, quat ) {
+
+  threeObject.position.copy( pos );
+  threeObject.quaternion.copy( quat );
+
+  const transform = new Ammo.btTransform();
+  transform.setIdentity();
+  transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+  transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+  const motionState = new Ammo.btDefaultMotionState( transform );
+
+  const localInertia = new Ammo.btVector3( 0, 0, 0 );
+  physicsShape.calculateLocalInertia( mass, localInertia );
+
+  const rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, physicsShape, localInertia );
+  const body = new Ammo.btRigidBody( rbInfo );
+
+  threeObject.userData.physicsBody = body;
+
+  scene.add( threeObject );
+
+  if ( mass > 0 ) {
+
+    rigidBodies.push( threeObject );
+
+    // Disable deactivation
+    body.setActivationState( 4 );
+
+  }
+
+  physicsWorld.addRigidBody( body );
+
+}
+
+function createRandomColor() {
+
+  return Math.floor( Math.random() * ( 1 << 24 ) );
+
+}
+
+function createMaterial() {
+
+  return new THREE.MeshPhongMaterial( { color: createRandomColor() } );
+
+}
+
+function onWindowResize() {
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
+
 
 //Loading models to the world
 function loadmodels() {
@@ -206,8 +399,9 @@ function loadmodels() {
       const loader = new GLTFLoader().setPath(basePath);
       loader.load("testWorld/kupoli/base.gltf", async function (gltf) {
         const model = gltf.scene;
+        model.name = "world";
         await renderer.compileAsync(model, camera, scene);
-        model.position.set(0, 0, 0);
+        model.position.set(0, 1, 0);
         model.traverse(function (node) {
           if (node.material) {
             node.material.side = THREE.FrontSide;
@@ -215,7 +409,8 @@ function loadmodels() {
             node.receiveShadow = true;
           }
         });
-        scene.add(model);
+        
+        teleportgroup.add(model);
       });
 
       const loader2 = new GLTFLoader().setPath(basePath);
@@ -235,19 +430,6 @@ function loadmodels() {
     });
 }
 
-renderer.setAnimationLoop(function () {
-  cleanIntersected();
-  moveMarker();
-  intersectObjects(controller1);
-  intersectObjects(controller2);
-  renderer.render(scene, camera);
-
-  const delta = clock.getDelta();
-
-  if (mixer !== undefined) {
-    mixer.update(delta);
-  }
-});
 
 //Controller functions
 function onSelectStart(event) {
@@ -413,4 +595,50 @@ function resize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+}
+function animate() {
+
+  requestAnimationFrame( animate );
+
+  render();
+  stats.update();
+
+}
+function render() {
+
+  const deltaTime = clock.getDelta();
+
+  updatePhysics( deltaTime );
+
+  renderer.render( scene, camera );
+
+}
+function updatePhysics( deltaTime ) {
+
+
+
+  // Step world
+  physicsWorld.stepSimulation( deltaTime, 10 );
+
+
+
+  // Update rigid bodies
+  for ( let i = 0, il = rigidBodies.length; i < il; i ++ ) {
+
+    const objThree = rigidBodies[ i ];
+    const objPhys = objThree.userData.physicsBody;
+    const ms = objPhys.getMotionState();
+    if ( ms ) {
+
+      ms.getWorldTransform( transformAux1 );
+      const p = transformAux1.getOrigin();
+      const q = transformAux1.getRotation();
+      objThree.position.set( p.x(), p.y(), p.z() );
+      objThree.quaternion.set( q.x(), q.y(), q.z(), q.w() );
+
+    }
+
+  }
+  
+
 }
