@@ -204,7 +204,7 @@ function loadmodels() {
 
       // Test models Delete Later
       const loader = new GLTFLoader().setPath(basePath);
-      loader.load("testWorld/ground.gltf", async function (gltf) {
+      loader.load("testWorld/kupoli/base.gltf", async function (gltf) {
         const model = gltf.scene;
         await renderer.compileAsync(model, camera, scene);
         model.position.set(0, 0, 0);

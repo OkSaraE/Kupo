@@ -15,7 +15,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"ground"
+			"name":"Ground"
 		}
 	],
 	"materials":[
@@ -24,9 +24,9 @@
 			"name":"Material.001",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.33603349328041077,
-					0.8002434968948364,
-					0.4115135967731476,
+					0.02117209881544113,
+					0.15626531839370728,
+					0.08951796591281891,
 					1
 				],
 				"metallicFactor":0,
@@ -115,7 +115,7 @@
 	"buffers":[
 		{
 			"byteLength":140,
-			"uri":"ground.bin"
+			"uri":"Ground.bin"
 		}
 	]
 }
