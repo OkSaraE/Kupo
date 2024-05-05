@@ -40,9 +40,7 @@ let INTERSECTION;
 const intersected = [];
 const tempMatrix = new THREE.Matrix4();
 //list of movable objects
-const modelarray = ["cube1", "cube2", "EXAMPLE", "ex2"];
-
-let laatikko;
+const modelarray = ["cube1", "cube2", "EXAMPLE", "ex2", "ex3"];
 
 //Groups
 let teleportgroup = new THREE.Group();
@@ -102,10 +100,11 @@ function init() {
   renderer.toneMappingExposure = 0.4;
   renderer.outputEncoding = THREE.sRGBEncoding;
 
+  loadmodels();
   initVR();
   initPhysics();
   createObjects();
-  loadmodels();
+
   document.body.appendChild(renderer.domElement);
 
   marker = new THREE.Mesh(
@@ -280,7 +279,7 @@ function createObjects() {
   createRigidBody( cube, cubeShape, cubeMass, pos, quat );
   cube.userData.physicsBody.setFriction( 0.5 );
 */
-
+  // Wall
   const brickMass = 0.2;
   const brickLength = 1;
   const brickDepth = 1;
@@ -298,37 +297,10 @@ function createObjects() {
     quat,
     createMaterial()
   );
-  brick.castShadow = false;
-  brick.receiveShadow = false;
-  /* brick.name = "EXAMPLE";
+  brick.castShadow = true;
+  brick.receiveShadow = true;
+  /*  brick.name = "EXAMPLE";
   movegroup.add(brick); */
-  const object1 = createParalellepiped(
-    1,
-    1,
-    1,
-    1,
-    new THREE.Vector3(-3, 2, 0), // Adjust the position as needed
-    quat,
-    createMaterial()
-  );
-  object1.castShadow = true;
-  object1.receiveShadow = true;
-  movegroup.add(object1);
-  const object2 = createParalellepiped(
-    1,
-    1,
-    1,
-    1,
-    new THREE.Vector3(3, 2, 0), // Adjust the position as needed
-    quat,
-    createMaterial()
-  );
-  object2.castShadow = true;
-  object2.receiveShadow = true;
-  movegroup.add(object2);
-
-  // Add the objects to the rigidBodies array
-  rigidBodies.push(object1, object2);
 }
 
 function createParalellepiped(sx, sy, sz, mass, pos, quat, material) {
@@ -336,22 +308,15 @@ function createParalellepiped(sx, sy, sz, mass, pos, quat, material) {
     new THREE.BoxGeometry(sx, sy, sz, 1, 1, 1),
     material
   );
-
-  //tässä lataa malli
-
   const shape = new Ammo.btBoxShape(
     new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5)
   );
   shape.setMargin(margin);
 
   createRigidBody(threeObject, shape, mass, pos, quat);
-  threeObject.name = "ex2";
-  laatikko = threeObject;
-  movegroup.add(threeObject);
-  return threeObject;
+  /*  threeObject.name = "ex2";
+  movegroup.add(threeObject) */ return threeObject;
 }
-
-function attachModels(threeObject) {}
 
 function createRigidBody(threeObject, physicsShape, mass, pos, quat) {
   threeObject.position.copy(pos);
@@ -449,7 +414,7 @@ function loadmodels() {
         teleportgroup.add(model);
       });
 
-      /* const loader2 = new GLTFLoader().setPath(basePath);
+      const loader2 = new GLTFLoader().setPath(basePath);
       loader2.load("testWorld/objects.gltf", async function (gltf) {
         const model2 = gltf.scene;
         await renderer.compileAsync(model2, camera, scene);
@@ -462,29 +427,6 @@ function loadmodels() {
           }
         });
         movegroup.add(model2);
-      }); */
-      const loader3 = new GLTFLoader().setPath(basePath);
-      loader3.load("testWorld/Radio.gltf", async function (gltf) {
-        const radio = gltf.scene;
-        await renderer.compileAsync(radio, camera, scene);
-
-        radio.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.FrontSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
-
-        laatikko.traverse(function (node) {
-          if (node.material) {
-            node.material.transparent = true;
-            node.material.opacity = 1;
-            node.material.castShadow = false;
-            node.material.receiveShadow = false;
-          }
-        });
-        laatikko.add(radio);
       });
     });
 }
@@ -499,20 +441,17 @@ function onSelectStart(event) {
     const intersection = intersections[0];
 
     let object = intersection.object;
+    /* object.material.emissive.b = 1; */
     /* while (!modelarray.includes(object.name)) {
       object = object.parent;
       if (modelarray.includes(object.name)) {
         break;
       }
     } */
-    console.log(object.userData.physicsBody);
-    console.log(object);
     controller.attach(object);
+    console.log(object);
 
     controller.userData.selected = object;
-
-    // Store the initial position of the object
-    object.userData.initialPosition = object.position.clone();
   }
 
   controller.userData.targetRayMode = event.data.targetRayMode;
@@ -523,63 +462,19 @@ function onSelectEnd(event) {
 
   if (controller.userData.selected !== undefined) {
     let object = controller.userData.selected;
-
-    // Calculate the position slightly in front of the controller
-    const controllerPos = new THREE.Vector3();
-    controller.getWorldPosition(controllerPos);
-    const offsetPosition = new THREE.Vector3();
-    controller.getWorldDirection(offsetPosition);
-    offsetPosition.multiplyScalar(-1); // Adjust this value as needed
-    const newPosition = controllerPos.clone().add(offsetPosition);
-
-    // Set the position of the object to the new position
-    object.position.copy(newPosition);
-
-    // Remove the object from being attached to the controller
-    movegroup.attach(object);
-
-    // Reset the initial position of the object
-    delete object.userData.initialPosition;
+    /* object.material.emissive.b = 0; */
+    scene.attach(object);
 
     controller.userData.selected = undefined;
-
-    // Allow the object to be affected by physics again (gravity)
-    if (object.userData.physicsBody) {
-      const physicsBody = object.userData.physicsBody;
-
-      // Activate the object
-      physicsBody.setActivationState(1);
-
-      // Reset the linear and angular velocities (optional)
-      physicsBody.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
-      physicsBody.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
-
-      // Update the position of the physics body
-      const pos = new Ammo.btVector3(
-        newPosition.x,
-        newPosition.y,
-        newPosition.z
-      );
-      const quat = new Ammo.btQuaternion(
-        object.quaternion.x,
-        object.quaternion.y,
-        object.quaternion.z,
-        object.quaternion.w
-      );
-      const transform = new Ammo.btTransform();
-      transform.setIdentity();
-      transform.setOrigin(pos);
-      transform.setRotation(quat);
-      physicsBody.setWorldTransform(transform);
-    }
   }
 }
+
 function getIntersections(controller) {
   controller.updateMatrixWorld();
 
   raycaster.setFromXRController(controller);
 
-  return raycaster.intersectObjects(movegroup.children, true);
+  return raycaster.intersectObjects(scene.children, true);
 }
 
 function intersectObjects(controller) {
@@ -603,24 +498,24 @@ function intersectObjects(controller) {
 
     // if object hit is NOT included in the model name array
     // Search for the parent group next to find a match until found
-    while (!modelarray.includes(object.name)) {
+    /* while (!modelarray.includes(object.name)) {
       object = object.parent;
       if (modelarray.includes(object.name)) {
         break;
       }
-    } /* 
+    }  */ /* 
     console.log("Parent", object); */
     // now it is the parent so cannot be assignemd, might be a group, need traversing to child object
     //object.material.emissive.r = 1;
     // go through object, find the materials assigned
-    object.traverse(function (node) {
+    /* object.traverse(function (node) {
       if (node.material) {
         node.material.emissive.r = 0.3;
         node.material.transparent = true;
         node.material.opacity = 0.5;
       }
-    });
-    /* object.material.emissive.r = 1; */
+    }); */
+    /*  object.material.emissive.r = 1; */
     intersected.push(object);
 
     line.scale.z = intersection.distance;
@@ -708,26 +603,6 @@ function animate() {
 
   render();
   stats.update();
-
-  // Update the position and orientation of the grabbed object
-  if (controller1.userData.selected !== undefined) {
-    updateObjectPosition(controller1, controller1.userData.selected);
-  }
-  if (controller2.userData.selected !== undefined) {
-    updateObjectPosition(controller2, controller2.userData.selected);
-  }
-}
-
-function updateObjectPosition(controller, object) {
-  const controllerPos = new THREE.Vector3();
-  controller.getWorldPosition(controllerPos);
-
-  // Apply the offset to match the initial position relative to the controller
-  const offset = controller.userData.offset;
-  object.position.copy(controllerPos).add(offset);
-
-  // Match the rotation of the controller
-  object.quaternion.copy(controller.quaternion);
 }
 function render() {
   const deltaTime = clock.getDelta();
@@ -749,27 +624,6 @@ function updatePhysics(deltaTime) {
       ms.getWorldTransform(transformAux1);
       const p = transformAux1.getOrigin();
       const q = transformAux1.getRotation();
-
-      // Check if this is the object you want to move
-      if (objThree.userData.initialPosition) {
-        // Move the object along with the controller
-        const controller = controller1.userData.selected
-          ? controller1
-          : controller2;
-        const controllerPos = new THREE.Vector3();
-        controller.getWorldPosition(controllerPos);
-        const initialPos = objThree.userData.initialPosition;
-        p.setX(initialPos.x + controllerPos.x);
-        p.setY(initialPos.y + controllerPos.y);
-        p.setZ(initialPos.z + controllerPos.z);
-
-        // Update the motion state with the new position
-        transformAux1.setOrigin(p);
-        ms.setWorldTransform(transformAux1);
-        objPhys.setWorldTransform(transformAux1);
-      }
-
-      // Update the position and rotation of the object in the scene
       objThree.position.set(p.x(), p.y(), p.z());
       objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
     }
