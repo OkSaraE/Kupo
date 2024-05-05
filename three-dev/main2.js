@@ -5,6 +5,7 @@ import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { VRButton } from "three/addons/webxr/VRButton.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import Stats from "three/addons/libs/stats.module.js";
+import { degrees } from "three/examples/jsm/nodes/Nodes.js";
 
 //For Vite build
 let basePath;
@@ -18,7 +19,7 @@ if (import.meta.env.MODE === "production") {
 let container, camera, scene, renderer, controls, textureLoader, stats;
 
 //physics variables
-const gravityConstant = -2.8;
+const gravityConstant = -6.2;
 let collisionConfiguration;
 let dispatcher;
 let broadphase;
@@ -40,7 +41,9 @@ let INTERSECTION;
 const intersected = [];
 const tempMatrix = new THREE.Matrix4();
 //list of movable objects
-const modelarray = ["cube1", "cube2", "EXAMPLE", "ex2", "ex3"];
+const modelarray = ["cube1", "cube2", "EXAMPLE", "ex2", "ground"];
+
+let laatikko;
 
 //Groups
 let teleportgroup = new THREE.Group();
@@ -52,7 +55,7 @@ Ammo().then(function (AmmoLib) {
   Ammo = AmmoLib;
 
   init();
-  animate();
+  
 });
 
 function init() {
@@ -100,11 +103,10 @@ function init() {
   renderer.toneMappingExposure = 0.4;
   renderer.outputEncoding = THREE.sRGBEncoding;
 
-  loadmodels();
   initVR();
   initPhysics();
   createObjects();
-
+  loadmodels();
   document.body.appendChild(renderer.domElement);
 
   marker = new THREE.Mesh(
@@ -249,7 +251,7 @@ function createObjects() {
   // Ground
   pos.set(0, -0.5, 0);
   quat.set(0, 0, 0, 1);
-  const ground = createParalellepiped(
+  const ground = createGround(
     300,
     1,
     300,
@@ -265,42 +267,479 @@ function createObjects() {
   ground.castShadow = true;
   ground.receiveShadow = true;
 
-  // cube
-  /* const cubeMass = 1.2;
-  const cubeRadius = 1;
+  // Load the pawnwhite model
+  const pawnblack = new GLTFLoader().setPath(basePath);
+pawnblack.load("testWorld/pawnblack.gltf", async function (gltf) {
+  const pawnblackModel = gltf.scene;
+  await renderer.compileAsync(pawnblackModel, camera, scene);
 
-  const cube = new THREE.Mesh( new THREE.BoxGeometry( 1 , 1 ,1), new THREE.MeshBasicMaterial( { color: 0x202020 } ) );
-  cube.castShadow = true;
-  cube.receiveShadow = true;
-  const cubeShape = new Ammo.btBoxShape( cubeRadius );
-  cubeShape.setMargin( margin );
-  pos.set( - 3, 2, 0 );
-  quat.set( 0, 0, 0, 1 );
-  createRigidBody( cube, cubeShape, cubeMass, pos, quat );
-  cube.userData.physicsBody.setFriction( 0.5 );
-*/
-  // Wall
-  const brickMass = 0.2;
-  const brickLength = 1;
-  const brickDepth = 1;
-  const brickHeight = 1;
+  // Create pawns
+  for (let i = 0; i < 8; i++) {
+    const brickMass = 0.2;
+    const brickLength = 0.5;
+    const brickDepth = 0.5;
+    const brickHeight = 1;
 
-  pos.set(-2, 19, -5);
-  quat.set(0, 0, 0, 1);
+    // Calculate position for each brick
+    const x = -1 + i; // Adjust this value according to your desired spacing
+    pos.set(x, 19, -11);
+    quat.set(0, 0, 0, 1);
 
-  const brick = createParalellepiped(
-    brickDepth,
-    brickHeight,
-    brickLength,
-    brickMass,
+    const brick = createParalellepiped(
+      brickDepth,
+      brickHeight,
+      brickLength,
+      brickMass,
+      pos,
+      quat,
+      createMaterial()
+    );
+    brick.castShadow = false;
+    brick.receiveShadow = false;
+    brick.material.transparent = true;
+    brick.material.opacity = 1;
+
+    // Clone the pawnblack model and add it to the brick
+    const pawnblackClone = pawnblackModel.clone();
+    pawnblackClone.traverse(function (node) {
+      if (node.material) {
+        node.material.side = THREE.DoubleSide;
+        node.castShadow = true;
+        node.receiveShadow = true;
+        node.position.y = -0.4;
+      }
+    });
+    brick.add(pawnblackClone);
+  }
+});
+  const rookblack = new GLTFLoader().setPath(basePath);
+  rookblack.load("testWorld/rookblack.gltf", async function (gltf) {
+    const rookblackModel = gltf.scene;
+    await renderer.compileAsync(rookblackModel, camera, scene);
+  
+    for (let i = 0; i < 2; i++) {
+      const objectMass = 0.5;
+  
+      const x = -1 + i * 7; 
+      pos.set(x, 18, -12); 
+      quat.set(0, 0, 0, 1); 
+  
+      const object = createParalellepiped(
+        0.5, 
+        1,
+        0.5,
+        objectMass,
+        pos,
+        quat,
+        createMaterial() 
+      );
+      object.castShadow = false; 
+      object.receiveShadow = false;
+      object.material.transparent = true;
+      object.material.opacity = 1;
+  
+      const rookblackClone = rookblackModel.clone();
+      rookblackClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = -0.4;
+        }
+      });
+      object.add(rookblackClone);
+    }
+  });
+  
+  const knightblack = new GLTFLoader().setPath(basePath);
+knightblack.load("testWorld/knightblack.gltf", async function (gltf) {
+  const knightblackModel = gltf.scene;
+  await renderer.compileAsync(knightblackModel, camera, scene);
+
+  for (let i = 0; i < 2; i++) {
+    const objectMass = 0.5;
+
+    const x = i * 5; 
+    pos.set(x, 18, -12); 
+    quat.set(0, 0, 0, 1); 
+
+    const object = createParalellepiped(
+      0.5, 
+      1,
+      0.5,
+      objectMass,
+      pos,
+      quat,
+      createMaterial() 
+    );
+    object.castShadow = false; 
+    object.receiveShadow = false;
+    object.material.transparent = true;
+    object.material.opacity = 1;
+
+    const knightblackClone = knightblackModel.clone();
+    knightblackClone.traverse(function (node) {
+      if (node.material) {
+        node.material.side = THREE.DoubleSide;
+        node.castShadow = true;
+        node.receiveShadow = true;
+        node.position.y = -0.4;
+      }
+    });
+    object.add(knightblackClone);
+  }
+});
+  
+const bishopblack = new GLTFLoader().setPath(basePath);
+bishopblack.load("testWorld/bishopblack.gltf", async function (gltf) {
+  const bishopblackModel = gltf.scene;
+  await renderer.compileAsync(bishopblackModel, camera, scene);
+
+  for (let i = 0; i < 2; i++) {
+    const objectMass = 0.5;
+
+    const x = 1 + i * 3; 
+    pos.set(x, 18, -12); 
+    quat.set(0, 0, 0, 1); 
+
+    const object = createParalellepiped(
+      0.5, 
+      1,
+      0.5,
+      objectMass,
+      pos,
+      quat,
+      createMaterial() 
+    );
+    object.castShadow = false; 
+    object.receiveShadow = false;
+    object.material.transparent = true;
+    object.material.opacity = 1;
+
+    const bishopblackClone = bishopblackModel.clone();
+    bishopblackClone.traverse(function (node) {
+      if (node.material) {
+        node.material.side = THREE.DoubleSide;
+        node.castShadow = true;
+        node.receiveShadow = true;
+        node.position.y = -0.4;
+      }
+    });
+    object.add(bishopblackClone);
+  }
+});
+const queenblack = new GLTFLoader().setPath(basePath);
+queenblack.load("testWorld/queenblack.gltf", async function (gltf) {
+  const queenblackModel = gltf.scene;
+  await renderer.compileAsync(queenblackModel, camera, scene);
+
+  const objectMass = 0.5;
+      
+  pos.set(2, 18, -12); 
+  quat.set(0, 0, 0, 1); 
+
+  const object = createParalellepiped(
+    0.5, 
+    1,
+    0.5,
+    objectMass,
     pos,
     quat,
-    createMaterial()
+    createMaterial() 
   );
-  brick.castShadow = true;
-  brick.receiveShadow = true;
-  /*  brick.name = "EXAMPLE";
-  movegroup.add(brick); */
+  object.castShadow = false; 
+  object.receiveShadow = false;
+  object.material.transparent = true;
+  object.material.opacity = 1;
+  
+  queenblackModel.traverse(function (node) {
+    if (node.material) {
+      node.material.side = THREE.DoubleSide;
+      node.castShadow = true;
+      node.receiveShadow = true;
+      node.position.y = -0.4;
+    }
+  });
+
+  object.add(queenblackModel);
+});
+
+const kingblack = new GLTFLoader().setPath(basePath);
+kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
+  const kingblackModel = gltf.scene;
+  await renderer.compileAsync(kingblackModel, camera, scene);
+
+  const objectMass = 0.5;
+      
+  pos.set(3, 18, -12); 
+  quat.set(0, 0, 0, 1); 
+
+  const object1 = createParalellepiped(
+    0.5, 
+    1,
+    0.5,
+    objectMass,
+    pos,
+    quat,
+    createMaterial() 
+  );
+  object1.castShadow = false; 
+  object1.receiveShadow = false;
+  object1.material.transparent = true;
+  object1.material.opacity = 1;
+  
+  kingblackModel.traverse(function (node) {
+    if (node.material) {
+      node.material.side = THREE.DoubleSide;
+      node.castShadow = true;
+      node.receiveShadow = true;
+      node.position.y = -0.4;
+    }
+  });
+
+  object1.add(kingblackModel);
+});
+
+  const pawnwhite = new GLTFLoader().setPath(basePath);
+  pawnwhite.load("testWorld/pawnwhite.gltf", async function (gltf) {
+    const pawnwhiteModel = gltf.scene;
+    await renderer.compileAsync(pawnwhiteModel, camera, scene);
+
+    // Create pawns
+    for (let i = 0; i < 8; i++) {
+      const brickMass = 0.2;
+      const brickLength = 0.5;
+      const brickDepth = 0.5;
+      const brickHeight = 1;
+
+      // Calculate position for each brick
+      const x = -1 + i; // Adjust this value according to your desired spacing
+      pos.set(x, 19, -5);
+      quat.set(0, 0, 0, 1);
+
+      const brick = createParalellepiped(
+        brickDepth,
+        brickHeight,
+        brickLength,
+        brickMass,
+        pos,
+        quat,
+        createMaterial()
+      );
+      brick.castShadow = false;
+      brick.receiveShadow = false;
+      brick.material.transparent = true;
+      brick.material.opacity = 1;
+
+      // Clone the pawnwhite model and add it to the brick
+      const pawnwhiteClone = pawnwhiteModel.clone();
+      pawnwhiteClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = -0.4;
+        }
+      });
+      brick.add(pawnwhiteClone);
+    }
+  });
+  const rookwhite = new GLTFLoader().setPath(basePath);
+  rookwhite.load("testWorld/rookwhite.gltf", async function (gltf) {
+    const rookwhiteModel = gltf.scene;
+    await renderer.compileAsync(rookwhiteModel, camera, scene);
+
+    for (let i = 0; i < 2; i++) {
+      const objectMass = 0.5;
+
+      const x = -1 + i * 7; 
+      pos.set(x, 18, -4); 
+      quat.set(0, 0, 0, 1); 
+
+      const object = createParalellepiped(
+        0.5, 
+        1,
+        0.5,
+        objectMass,
+        pos,
+        quat,
+        createMaterial() 
+      );
+      object.castShadow = false; 
+      object.receiveShadow = false;
+      object.material.transparent = true;
+      object.material.opacity = 1;
+
+      const rookwhiteClone = rookwhiteModel.clone();
+      rookwhiteClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = -0.4;
+        }
+      });
+      object.add(rookwhiteClone);
+    }
+  });
+
+  const knightwhite = new GLTFLoader().setPath(basePath);
+  knightwhite.load("testWorld/knightwhite.gltf", async function (gltf) {
+    const knightwhiteModel = gltf.scene;
+    await renderer.compileAsync(knightwhiteModel, camera, scene);
+
+    for (let i = 0; i < 2; i++) {
+      const objectMass = 0.5;
+
+      const x =  i * 5; 
+      pos.set(x, 5, -4); 
+      quat.set(0, 0, 0, 1); 
+
+      const object = createParalellepiped(
+        0.6, 
+        1.5,
+        0.6,
+        objectMass,
+        pos,
+        quat,
+        createMaterial() 
+      );
+      object.castShadow = false; 
+      object.receiveShadow = false;
+      object.material.transparent = true;
+      object.material.opacity = 1;
+
+      const knightwhiteClone = knightwhiteModel.clone();
+      knightwhiteClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = -0.7;
+          
+          
+        }
+      });
+      object.add(knightwhiteClone);
+    }
+  });
+  
+  const bishopwhite = new GLTFLoader().setPath(basePath);
+  bishopwhite.load("testWorld/bishopwhite.gltf", async function (gltf) {
+    const bishopwhiteModel = gltf.scene;
+    await renderer.compileAsync(bishopwhiteModel, camera, scene);
+
+    for (let i = 0; i < 2; i++) {
+      const objectMass = 0.5;
+
+      const x =  1 + i * 3; 
+      pos.set(x, 5, -4); 
+      quat.set(0, 0, 0, 1); 
+
+      const object = createCylinder(
+      
+        0.5,
+        0.8,
+         objectMass,
+         pos,
+         quat,
+         createMaterial() 
+       );
+      object.castShadow = false; 
+      object.receiveShadow = false;
+      object.material.transparent = true;
+      object.material.opacity = 0;
+
+      const bishopwhiteClone = bishopwhiteModel.clone();
+      bishopwhiteClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = -0.71;
+        }
+      });
+      object.add(bishopwhiteClone);
+    }
+  });
+
+  const queenwhite = new GLTFLoader().setPath(basePath);
+  queenwhite.load("testWorld/queenwhite.gltf", async function (gltf) {
+    const queenwhiteModel = gltf.scene;
+    await renderer.compileAsync(queenwhiteModel, camera, scene);
+
+      const objectMass = 0.5;
+      
+      pos.set(2, 18, -4); 
+      quat.set(0, 0, 0, 1); 
+
+      const object = createParalellepiped(
+        0.5, 
+        2,
+        0.5,
+        objectMass,
+        pos,
+        quat,
+        createMaterial() 
+      );
+      object.castShadow = false; 
+      object.receiveShadow = false;
+      object.material.transparent = true;
+      object.material.opacity = 0;
+      
+      
+      queenwhiteModel.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = -0.9;
+          
+        }
+      });
+
+      object.add(queenwhiteModel);
+    
+  });
+
+  const kingwhite = new GLTFLoader().setPath(basePath);
+  kingwhite.load("testWorld/kingwhite.gltf", async function (gltf) {
+    const kingwhiteModel = gltf.scene;
+    await renderer.compileAsync(kingwhiteModel, camera, scene);
+
+      const objectMass = 0.5;
+      
+      pos.set(3, 4, -4); 
+      quat.set(0, 0, 0, 1); 
+
+      const object1 = createCylinder(
+      
+       0.5,
+       1,
+        objectMass,
+        pos,
+        quat,
+        createMaterial() 
+      );
+      object1.castShadow = false; 
+      object1.receiveShadow = false;
+      object1.material.transparent = true;
+      object1.material.opacity = 0;
+
+      
+      kingwhiteModel.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = -0.82;
+        }
+      });
+
+      object1.add(kingwhiteModel);
+    
+  });
+  
 }
 
 function createParalellepiped(sx, sy, sz, mass, pos, quat, material) {
@@ -308,15 +747,59 @@ function createParalellepiped(sx, sy, sz, mass, pos, quat, material) {
     new THREE.BoxGeometry(sx, sy, sz, 1, 1, 1),
     material
   );
+
+  //tässä lataa malli
+
   const shape = new Ammo.btBoxShape(
     new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5)
   );
   shape.setMargin(margin);
 
   createRigidBody(threeObject, shape, mass, pos, quat);
-  /*  threeObject.name = "ex2";
-  movegroup.add(threeObject) */ return threeObject;
+  threeObject.name = "ex2";
+  laatikko = threeObject;
+  movegroup.add(threeObject);
+  return threeObject;
+  
 }
+
+function createGround(sx, sy, sz, mass, pos, quat, material) {
+  const threeObject = new THREE.Mesh(
+    new THREE.BoxGeometry(sx, sy, sz, 1, 1, 1),
+    material
+  );
+
+  //tässä lataa malli
+
+  const shape = new Ammo.btBoxShape(
+    new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5)
+  );
+  shape.setMargin(margin);
+
+  createRigidBody(threeObject, shape, mass, pos, quat);
+  threeObject.name = "ground";
+  laatikko = threeObject;
+  teleportgroup.add(threeObject);
+  return threeObject;
+}
+
+
+function createCylinder(radius, height, mass, pos, quat, material) {
+  const threeObject = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius/2, radius, 1, 16, 1),
+      material
+  );
+
+  const shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height, radius/2));
+  shape.setMargin(margin);
+
+  createRigidBody(threeObject, shape, mass, pos, quat);
+threeObject.name = "ex2";
+  laatikko = threeObject;
+  movegroup.add(threeObject);
+  return threeObject;
+}
+
 
 function createRigidBody(threeObject, physicsShape, mass, pos, quat) {
   threeObject.position.copy(pos);
@@ -351,8 +834,7 @@ function createRigidBody(threeObject, physicsShape, mass, pos, quat) {
   }
 
   physicsWorld.addRigidBody(body);
-  /* body.name = "ex3";
-  movegroup.add(body); */
+  
 }
 
 function createRandomColor() {
@@ -414,20 +896,6 @@ function loadmodels() {
         teleportgroup.add(model);
       });
 
-      const loader2 = new GLTFLoader().setPath(basePath);
-      loader2.load("testWorld/objects.gltf", async function (gltf) {
-        const model2 = gltf.scene;
-        await renderer.compileAsync(model2, camera, scene);
-        model2.position.set(0, 0, 0);
-        model2.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.FrontSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
-        movegroup.add(model2);
-      });
     });
 }
 
@@ -437,21 +905,24 @@ function onSelectStart(event) {
 
   const intersections = getIntersections(controller);
 
-  if (intersections.length > 0) {
+  if (intersections.length > 0 )  {
     const intersection = intersections[0];
 
     let object = intersection.object;
-    /* object.material.emissive.b = 1; */
     /* while (!modelarray.includes(object.name)) {
       object = object.parent;
       if (modelarray.includes(object.name)) {
         break;
       }
     } */
-    controller.attach(object);
+    console.log(object.userData.physicsBody);
     console.log(object);
+    controller.attach(object);
 
     controller.userData.selected = object;
+
+    // Store the initial position of the object
+    object.userData.initialPosition = object.position.clone();
   }
 
   controller.userData.targetRayMode = event.data.targetRayMode;
@@ -462,10 +933,51 @@ function onSelectEnd(event) {
 
   if (controller.userData.selected !== undefined) {
     let object = controller.userData.selected;
-    /* object.material.emissive.b = 0; */
-    scene.attach(object);
+
+    // Get the position of the controller
+    const controllerPos = new THREE.Vector3();
+    controller.getWorldPosition(controllerPos);
+
+    // Set the position of the object to the position of the controller
+    object.position.copy(controllerPos);
+
+    // Remove the object from being attached to the controller
+    movegroup.attach(object);
+
+    // Reset the initial position of the object
+    delete object.userData.initialPosition;
 
     controller.userData.selected = undefined;
+
+    // Allow the object to be affected by physics again (gravity)
+    if (object.userData.physicsBody) {
+      const physicsBody = object.userData.physicsBody;
+
+      // Activate the object
+      physicsBody.setActivationState(1);
+
+      // Reset the linear and angular velocities (optional)
+      physicsBody.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
+      physicsBody.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+
+      // Update the position of the physics body
+      const pos = new Ammo.btVector3(
+        controllerPos.x,
+        controllerPos.y,
+        controllerPos.z
+      );
+      const quat = new Ammo.btQuaternion(
+        object.quaternion.x,
+        object.quaternion.y,
+        object.quaternion.z,
+        object.quaternion.w
+      );
+      const transform = new Ammo.btTransform();
+      transform.setIdentity();
+      transform.setOrigin(pos);
+      transform.setRotation(quat);
+      physicsBody.setWorldTransform(transform);
+    }
   }
 }
 
@@ -474,7 +986,7 @@ function getIntersections(controller) {
 
   raycaster.setFromXRController(controller);
 
-  return raycaster.intersectObjects(scene.children, true);
+  return raycaster.intersectObjects(movegroup.children, true);
 }
 
 function intersectObjects(controller) {
@@ -498,24 +1010,24 @@ function intersectObjects(controller) {
 
     // if object hit is NOT included in the model name array
     // Search for the parent group next to find a match until found
-    /* while (!modelarray.includes(object.name)) {
+    while (!modelarray.includes(object.name)) {
       object = object.parent;
       if (modelarray.includes(object.name)) {
         break;
       }
-    }  */ /* 
+    } /* 
     console.log("Parent", object); */
     // now it is the parent so cannot be assignemd, might be a group, need traversing to child object
     //object.material.emissive.r = 1;
     // go through object, find the materials assigned
-    /* object.traverse(function (node) {
+    object.traverse(function (node) {
       if (node.material) {
         node.material.emissive.r = 0.3;
         node.material.transparent = true;
         node.material.opacity = 0.5;
       }
-    }); */
-    /*  object.material.emissive.r = 1; */
+    });
+    /* object.material.emissive.r = 1; */
     intersected.push(object);
 
     line.scale.z = intersection.distance;
@@ -598,11 +1110,18 @@ function resize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-function animate() {
-  requestAnimationFrame(animate);
 
-  render();
-  stats.update();
+
+function updateObjectPosition(controller, object) {
+  const controllerPos = new THREE.Vector3();
+  controller.getWorldPosition(controllerPos);
+
+  // Apply the offset to match the initial position relative to the controller
+  const offset = controller.userData.offset;
+  object.position.copy(controllerPos).add(offset);
+
+  // Match the rotation of the controller
+  object.quaternion.copy(controller.quaternion);
 }
 function render() {
   const deltaTime = clock.getDelta();
@@ -624,6 +1143,27 @@ function updatePhysics(deltaTime) {
       ms.getWorldTransform(transformAux1);
       const p = transformAux1.getOrigin();
       const q = transformAux1.getRotation();
+
+      // Check if this is the object you want to move
+      if (objThree.userData.initialPosition) {
+        // Move the object along with the controller
+        const controller = controller1.userData.selected
+          ? controller1
+          : controller2;
+        const controllerPos = new THREE.Vector3();
+        controller.getWorldPosition(controllerPos);
+        const initialPos = objThree.userData.initialPosition;
+        p.setX(initialPos.x + controllerPos.x);
+        p.setY(initialPos.y + controllerPos.y);
+        p.setZ(initialPos.z + controllerPos.z);
+
+        // Update the motion state with the new position
+        transformAux1.setOrigin(p);
+        ms.setWorldTransform(transformAux1);
+        objPhys.setWorldTransform(transformAux1);
+      }
+
+      // Update the position and rotation of the object in the scene
       objThree.position.set(p.x(), p.y(), p.z());
       objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
     }
