@@ -120,12 +120,12 @@ function init() {
   controls.update();
 
   //Radio
-  audioLoader = new THREE.AudioLoader();
+ /*  audioLoader = new THREE.AudioLoader();
   audioLoader.load("sounds/testsound.mp3", function (buffer) {
     sound.setBuffer(buffer);
     sound.setRefDistance(10);
     sound.play();
-  });
+  }); */
 }
 
 function initVR() {
@@ -233,7 +233,7 @@ function loadmodels() {
       });
 
       const loader2 = new GLTFLoader().setPath(basePath);
-      loader2.load("objects/objects.gltf", async function (gltf) {
+      loader2.load("Objects/objects.gltf", async function (gltf) {
         const model2 = gltf.scene;
         await renderer.compileAsync(model2, camera, scene);
         model2.position.set(0, 0, 0);
