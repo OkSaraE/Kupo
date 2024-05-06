@@ -141,11 +141,11 @@ function init() {
   directionalLight.shadow.camera.right = 40;
 
   //Create a helper for the shadow camera
-  const shadowhelper = new THREE.CameraHelper(directionalLight.shadow.camera);
-  scene.add(shadowhelper);
+  // const shadowhelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+  // scene.add(shadowhelper);
 
-  const helper = new THREE.DirectionalLightHelper(directionalLight, 5);
-  scene.add(helper);
+  // const helper = new THREE.DirectionalLightHelper(directionalLight, 5);
+  // scene.add(helper);
 
   const axesHelper = new THREE.AxesHelper(5);
   scene.add(axesHelper);
@@ -172,6 +172,7 @@ function init() {
   audioLoader = new THREE.AudioLoader();
   audioLoader.load("sounds/Space.mp3", function (buffer) {
     sound.setBuffer(buffer);
+    sound.setVolume(0.5);
     sound.setRefDistance(7);
     sound.play();
   });
@@ -183,6 +184,7 @@ function init() {
   audioLoader2 = new THREE.AudioLoader();
   audioLoader2.load("sounds/Beach.mp3", function (buffer) {
     sound2.setBuffer(buffer);
+    sound2.setVolume(1.2);
     sound2.setRefDistance(5);
     sound2.play();
   });
@@ -571,7 +573,7 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = -2 +(i * 14);
+      const x = -2 + i * 14;
       pos.set(x, 1, 35);
       quat.set(0, 0, 0, 1);
 
@@ -649,7 +651,7 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = 2 + (i * 6);
+      const x = 2 + i * 6;
       pos.set(x, 1, 35);
       quat.set(0, 0, 0, 1);
 
@@ -762,7 +764,7 @@ function createObjects() {
       const brickHeight = 1.2;
 
       // Calculate position for each brick
-      const x = -2 + (i*2);
+      const x = -2 + i * 2;
       pos.set(x, 1, 49);
       quat.set(0, 0, 0, 1);
 
@@ -801,7 +803,7 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = -2 + (i * 14);
+      const x = -2 + i * 14;
       pos.set(x, 1, 51);
       quat.set(0, 0, 0, 1);
 
@@ -879,7 +881,7 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = 2 + (i * 6);
+      const x = 2 + i * 6;
       pos.set(x, 1, 51);
       quat.set(0, 0, 0, 1);
 
