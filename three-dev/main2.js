@@ -359,7 +359,7 @@ function createObjects() {
 
       // Calculate position for each brick
       const x = -10 + i;
-      pos.set(x * 3, 5, -20);
+      pos.set(x * 4, 5, -20);
       quat.set(0, 0, 0, 1);
 
       const brick = createParalellepiped(
@@ -390,8 +390,8 @@ function createObjects() {
     }
   });
 
-  /* const buildArc = new GLTFLoader().setPath(basePath);
-  buildArc.load("Ready/BuildArc.glb", async function (gltf) {
+  const buildArc = new GLTFLoader().setPath(basePath);
+  buildArc.load("Ready/BuildArc.gltf", async function (gltf) {
     const buildArcModel = gltf.scene;
     await renderer.compileAsync(buildArcModel, camera, scene);
   
@@ -399,12 +399,12 @@ function createObjects() {
     for (let i = 0; i < 3; i++) {
       const brickMass = 0.2;
       const brickLength = 2.01;
-      const brickDepth = 2.01;
+      const brickDepth = 4.01;
       const brickHeight = 2.01;
   
       // Calculate position for each brick
-      const x = -1 + i; 
-      pos.set(x*3, 5, 10);
+      const x = -8 + i; 
+      pos.set(x*5, 5, -16);
       quat.set(0, 0, 0, 1);
   
       const brick = createParalellepiped(
@@ -428,14 +428,14 @@ function createObjects() {
           node.material.side = THREE.DoubleSide;
           node.castShadow = true;
           node.receiveShadow = true;
-          node.position.y = 1
+          node.position.y = 0
           ;
           
         }
       });
       brick.add(buildArcClone);
     }
-  }); */
+  });
 
   const buildPlatform = new GLTFLoader().setPath(basePath);
   buildPlatform.load("Ready/BuildPlatform.gltf", async function (gltf) {
@@ -449,7 +449,7 @@ function createObjects() {
       const brickHeight = 1.01;
 
       // Calculate position for each brick
-      const x = -10 + i;
+      const x = -8 + i;
       pos.set(x * 4, 8, -20);
       quat.set(0, 0, 0, 1);
 
