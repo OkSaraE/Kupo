@@ -322,7 +322,7 @@ function createObjects() {
   const quat = new THREE.Quaternion();
 
   // Ground
-  pos.set(0, 1, 0);
+  pos.set(0, -0.5, 0);
   quat.set(0, 0, 0, 1);
   const ground = createGround(
     300,
@@ -529,7 +529,7 @@ function createObjects() {
 
       // Calculate position for each brick
       const x = -1 + i;
-      pos.set(x * 2, 5, 65);
+      pos.set(x * 2, 5, 37);
       quat.set(0, 0, 0, 1);
 
       const brick = createParalellepiped(
@@ -567,8 +567,8 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = -1 + i * 7;
-      pos.set(x, 1, -12);
+      const x = -2 +(i * 14);
+      pos.set(x, 1, 35);
       quat.set(0, 0, 0, 1);
 
       const object = createCylinder(
@@ -606,8 +606,8 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = i * 5;
-      pos.set(x, 1, -12);
+      const x = i * 10;
+      pos.set(x, 1, 35);
       quat.set(0, 0, 0, 1);
 
       const object = createParalellepiped(
@@ -645,8 +645,8 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = 1 + i * 3;
-      pos.set(x, 1, -12);
+      const x = 2 + (i * 6);
+      pos.set(x, 1, 35);
       quat.set(0, 0, 0, 1);
 
       const object = createCylinder(
@@ -681,7 +681,7 @@ function createObjects() {
 
     const objectMass = 0.5;
 
-    pos.set(2, 1, -12);
+    pos.set(4, 1, 35);
     quat.set(0, 0, 0, 1);
 
     const object = createParalellepiped(
@@ -717,7 +717,7 @@ function createObjects() {
 
     const objectMass = 0.5;
 
-    pos.set(3, 1, -12);
+    pos.set(6, 1, 35);
     quat.set(0, 0, 0, 1);
 
     const object1 = createCylinder(
@@ -758,8 +758,8 @@ function createObjects() {
       const brickHeight = 1.2;
 
       // Calculate position for each brick
-      const x = -1 + i;
-      pos.set(x, 1, -5);
+      const x = -2 + (i*2);
+      pos.set(x, 1, 49);
       quat.set(0, 0, 0, 1);
 
       const brick = createParalellepiped(
@@ -797,8 +797,8 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = -1 + i * 7;
-      pos.set(x, 1, -4);
+      const x = -2 + (i * 14);
+      pos.set(x, 1, 51);
       quat.set(0, 0, 0, 1);
 
       const object = createCylinder(
@@ -836,8 +836,8 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = i * 5;
-      pos.set(x, 1, -4);
+      const x = i * 10;
+      pos.set(x, 1, 51);
       quat.set(0, 0, 0, 1);
 
       const object = createParalellepiped(
@@ -875,8 +875,8 @@ function createObjects() {
     for (let i = 0; i < 2; i++) {
       const objectMass = 0.5;
 
-      const x = 1 + i * 3;
-      pos.set(x, 1, -4);
+      const x = 2 + (i * 6);
+      pos.set(x, 1, 51);
       quat.set(0, 0, 0, 1);
 
       const object = createCylinder(
@@ -912,7 +912,7 @@ function createObjects() {
 
     const objectMass = 0.5;
 
-    pos.set(2, 1, -4);
+    pos.set(4, 1, 51);
     quat.set(0, 0, 0, 1);
 
     const object = createParalellepiped(
@@ -948,7 +948,7 @@ function createObjects() {
 
     const objectMass = 0.5;
 
-    pos.set(3, 1, -4);
+    pos.set(6, 1, 51);
     quat.set(0, 0, 0, 1);
 
     const object1 = createCylinder(
