@@ -134,7 +134,7 @@ function init() {
   directionalLight.shadow.camera.left = -40;
   directionalLight.shadow.camera.right = 40;
 
-  //Create a helper for the shadow camera (optional)
+  //Create a helper for the shadow camera
   const shadowhelper = new THREE.CameraHelper(directionalLight.shadow.camera);
   scene.add(shadowhelper);
 
@@ -254,7 +254,7 @@ function createObjects() {
   const quat = new THREE.Quaternion();
 
   // Ground
-  pos.set(0, 0, 0);
+  pos.set(0, 1, 0);
   quat.set(0, 0, 0, 1);
   const ground = createGround(
     300,
@@ -272,6 +272,189 @@ function createObjects() {
   ground.castShadow = true;
   ground.receiveShadow = true;
 
+
+  const buildCube = new GLTFLoader().setPath(basePath);
+  buildCube.load("Ready/BuildCube.gltf", async function (gltf) {
+    const buildCubeModel = gltf.scene;
+    await renderer.compileAsync(buildCubeModel, camera, scene);
+  
+    
+    for (let i = 0; i < 3; i++) {
+      const brickMass = 0.2;
+      const brickLength = 2.01;
+      const brickDepth = 2.01;
+      const brickHeight = 2.01;
+  
+      // Calculate position for each brick
+      const x = -10 + i; 
+      pos.set(x*3, 5, -20);
+      quat.set(0, 0, 0, 1);
+  
+      const brick = createParalellepiped(
+        brickDepth,
+        brickHeight,
+        brickLength,
+        brickMass,
+        pos,
+        quat,
+        createMaterial()
+      );
+      brick.castShadow = false;
+      brick.receiveShadow = false;
+      brick.material.transparent = true;
+      brick.material.opacity = 0;
+  
+      // Clone the pawnblack model and add it to the brick
+      const buildCubeClone = buildCubeModel.clone();
+      buildCubeClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = 0
+          ;
+          
+        }
+      });
+      brick.add(buildCubeClone);
+    }
+  });
+
+  /* const buildArc = new GLTFLoader().setPath(basePath);
+  buildArc.load("Ready/BuildArc.glb", async function (gltf) {
+    const buildArcModel = gltf.scene;
+    await renderer.compileAsync(buildArcModel, camera, scene);
+  
+    
+    for (let i = 0; i < 3; i++) {
+      const brickMass = 0.2;
+      const brickLength = 2.01;
+      const brickDepth = 2.01;
+      const brickHeight = 2.01;
+  
+      // Calculate position for each brick
+      const x = -1 + i; 
+      pos.set(x*3, 5, 10);
+      quat.set(0, 0, 0, 1);
+  
+      const brick = createParalellepiped(
+        brickDepth,
+        brickHeight,
+        brickLength,
+        brickMass,
+        pos,
+        quat,
+        createMaterial()
+      );
+      brick.castShadow = false;
+      brick.receiveShadow = false;
+      brick.material.transparent = true;
+      brick.material.opacity = 0;
+  
+      // Clone the pawnblack model and add it to the brick
+      const buildArcClone = buildArcModel.clone();
+      buildArcClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = 1
+          ;
+          
+        }
+      });
+      brick.add(buildArcClone);
+    }
+  }); */
+
+  const buildPlatform = new GLTFLoader().setPath(basePath);
+  buildPlatform.load("Ready/BuildPlatform.gltf", async function (gltf) {
+    const buildPlatformModel = gltf.scene;
+    await renderer.compileAsync(buildPlatformModel, camera, scene);
+  
+    
+    for (let i = 0; i < 3; i++) {
+      const brickMass = 0.2;
+      const brickLength = 2.01;
+      const brickDepth = 4.01;
+      const brickHeight = 1.01;
+  
+      // Calculate position for each brick
+      const x = -10 + i; 
+      pos.set(x*4, 8, -20);
+      quat.set(0, 0, 0, 1);
+  
+      const brick = createParalellepiped(
+        brickDepth,
+        brickHeight,
+        brickLength,
+        brickMass,
+        pos,
+        quat,
+        createMaterial()
+      );
+      brick.castShadow = false;
+      brick.receiveShadow = false;
+      brick.material.transparent = true;
+      brick.material.opacity = 0;
+  
+      // Clone the pawnblack model and add it to the brick
+      const buildPlatformClone = buildPlatformModel.clone();
+      buildPlatformClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = 0
+          ;
+          
+        }
+      });
+      brick.add(buildPlatformClone);
+    }
+  });
+  const buildCylinder = new GLTFLoader().setPath(basePath);
+  buildCylinder.load("Ready/BuildCylinder.gltf", async function (gltf) {
+    const buildCylinderModel = gltf.scene;
+    await renderer.compileAsync(buildCylinderModel, camera, scene);
+  
+    for (let i = 0; i < 2; i++) {
+      const objectMass = 0.5;
+  
+      const x = -40 + i * 3; 
+      const z = -10 + i * 2; 
+      pos.set(x, 1, z); 
+      quat.set(0, 0, 0, 1); 
+  
+      const object = createCylinderBlock(
+        1.02, 
+        1.02,
+       
+        objectMass,
+        pos,
+        quat,
+        createMaterial() 
+      );
+      object.castShadow = false; 
+      object.receiveShadow = false;
+      object.material.transparent = true;
+      object.material.opacity = 0;
+  
+      const buildCylinderClone = buildCylinderModel.clone();
+      buildCylinderClone.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.position.y = 0;
+        }
+      });
+      object.add(buildCylinderClone);
+    }
+  });
+
+
+
   // Load the pawnwhite model
   const pawnblack = new GLTFLoader().setPath(basePath);
 pawnblack.load("chess/pawnblack.gltf", async function (gltf) {
@@ -286,7 +469,7 @@ pawnblack.load("chess/pawnblack.gltf", async function (gltf) {
     const brickHeight = 1.2;
 
     // Calculate position for each brick
-    const x = -1 + i; // Adjust this value according to your desired spacing
+    const x = -1 + i; 
     pos.set(x*2, 5, 65);
     quat.set(0, 0, 0, 1);
 
@@ -518,7 +701,7 @@ kingblack.load("chess/kingblack.gltf", async function (gltf) {
       const brickHeight = 1.2;
 
       // Calculate position for each brick
-      const x = -1 + i; // Adjust this value according to your desired spacing
+      const x = -1 + i; 
       pos.set(x, 1, -5);
       quat.set(0, 0, 0, 1);
 
@@ -754,7 +937,6 @@ function createParalellepiped(sx, sy, sz, mass, pos, quat, material) {
     material
   );
 
-  //tässä lataa malli
 
   const shape = new Ammo.btBoxShape(
     new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5)
@@ -775,7 +957,6 @@ function createGround(sx, sy, sz, mass, pos, quat, material) {
     material
   );
 
-  //tässä lataa malli
 
   const shape = new Ammo.btBoxShape(
     new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5)
@@ -797,6 +978,22 @@ function createCylinder(radius, height, mass, pos, quat, material) {
   );
 
   const shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height, radius/1.5));
+  shape.setMargin(margin);
+  shape.scale 
+
+  createRigidBody(threeObject, shape, mass, pos, quat);
+threeObject.name = "ex2";
+  laatikko = threeObject;
+  movegroup.add(threeObject);
+  return threeObject;
+}
+function createCylinderBlock(radius, height, mass, pos, quat, material) {
+  const threeObject = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius, radius, 2.01, 16, 1),
+      material
+  );
+
+  const shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height, radius));
   shape.setMargin(margin);
   shape.scale 
 
@@ -945,19 +1142,13 @@ function onSelectStart(event) {
     const intersection = intersections[0];
 
     let object = intersection.object;
-    /* while (!modelarray.includes(object.name)) {
-      object = object.parent;
-      if (modelarray.includes(object.name)) {
-        break;
-      }
-    } */
+ 
     console.log(object.userData.physicsBody);
     console.log(object);
     controller.attach(object);
 
     controller.userData.selected = object;
 
-    // Store the initial position of the object
     object.userData.initialPosition = object.position.clone();
   }
 
@@ -974,25 +1165,21 @@ function onSelectEnd(event) {
     const controllerPos = new THREE.Vector3();
     controller.getWorldPosition(controllerPos);
 
-    // Set the position of the object to the position of the controller
     object.position.copy(controllerPos);
 
-    // Remove the object from being attached to the controller
     movegroup.attach(object);
 
-    // Reset the initial position of the object
     delete object.userData.initialPosition;
 
     controller.userData.selected = undefined;
 
-    // Allow the object to be affected by physics again (gravity)
+    // Allow the object to be affected by physics again
     if (object.userData.physicsBody) {
       const physicsBody = object.userData.physicsBody;
 
-      // Activate the object
       physicsBody.setActivationState(1);
 
-      // Reset the linear and angular velocities (optional)
+      // Reset the linear and angular velocities
       physicsBody.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
       physicsBody.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 
@@ -1051,11 +1238,8 @@ function intersectObjects(controller) {
       if (modelarray.includes(object.name)) {
         break;
       }
-    } /* 
-    console.log("Parent", object); */
-    // now it is the parent so cannot be assignemd, might be a group, need traversing to child object
-    //object.material.emissive.r = 1;
-    // go through object, find the materials assigned
+    } 
+
     object.traverse(function (node) {
       if (node.material) {
         node.material.emissive.r = 0.3;
@@ -1075,9 +1259,7 @@ function intersectObjects(controller) {
 function cleanIntersected() {
   while (intersected.length) {
     const object = intersected.pop();
-    // now it is the parent so cannot be assignemd, might be a group, need traversing to child object
-    //object.material.emissive.r = 1;
-    // go through object, find the materials assigned
+   
     object.traverse(function (node) {
       if (node.material) {
         node.material.emissive.r = 0;
@@ -1189,9 +1371,9 @@ function updatePhysics(deltaTime) {
         const controllerPos = new THREE.Vector3();
         controller.getWorldPosition(controllerPos);
         const initialPos = objThree.userData.initialPosition;
-        p.setX(initialPos.x + controllerPos.x);
-        p.setY(initialPos.y + controllerPos.y);
-        p.setZ(initialPos.z + controllerPos.z);
+        p.setX(initialPos.x + controllerPos.x );
+        p.setY(initialPos.y + controllerPos.y );
+        p.setZ(initialPos.z + controllerPos.z );
 
         // Update the motion state with the new position
         transformAux1.setOrigin(p);
