@@ -194,7 +194,7 @@ function initVR() {
 function loadmodels() {
   new RGBELoader()
     .setPath(basePath)
-    .load("testWorld/starsky.hdr", function (texture) {
+    .load("hdr/starsky.hdr", function (texture) {
       texture.mapping = THREE.EquirectangularReflectionMapping;
       scene.background = texture;
       scene.environment = texture;
