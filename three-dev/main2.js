@@ -1188,29 +1188,30 @@ function loadmodels() {
         scene.add(radio2);
         radio2.add(sound2);
       });
+const loader6 = new GLTFLoader().setPath(basePath);
+        loader6.load("objects/book.glb", async function (gltf) {
+          const model6 = gltf.scene;
 
-      const loader6 = new GLTFLoader().setPath(basePath);
-      loader6.load("book/book.glb", async function (gltf) {
-        const model6 = gltf.scene;
+          // wait until the model can be added to the scene without blocking due to shader compilation
 
-        await renderer.compileAsync(model6, camera, scene);
+          await renderer.compileAsync(model6, camera, scene);
+          
+          
+          console.log("model6", gltf);
+          /* group.add(model); */
+          scene.add(model6);
 
-        console.log("model6", gltf);
-
-        // mixer = new THREE.AnimationMixer(gltf.scene);
-        // const clips = gltf.animations;
-        // mixer.clipAction(clips[1]).play();
-
-        model6.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.FrontSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
+          mixer = new THREE.AnimationMixer(gltf.scene);
+          const clips = gltf.animations;
+          mixer.clipAction(clips[0]).play();
+          model6.traverse(function (node) {
+            if (node.material) {
+              node.material.side = THREE.FrontSide;
+              node.castShadow = true;
+              node.receiveShadow = true;
+            }
+          });
         });
-
-        scene.add(model6);
-      });
     });
 }
 
@@ -1428,6 +1429,10 @@ function render() {
   updatePhysics(deltaTime);
   moveMarker();
   renderer.render(scene, camera);
+  
+  if (mixer !== undefined) {
+    mixer.update(deltaTime);
+  }
 }
 function updatePhysics(deltaTime) {
   // Step world
