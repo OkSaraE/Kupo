@@ -276,13 +276,13 @@ pawnblack.load("testWorld/pawnblack.gltf", async function (gltf) {
   // Create pawns
   for (let i = 0; i < 8; i++) {
     const brickMass = 0.2;
-    const brickLength = 0.5;
-    const brickDepth = 0.5;
-    const brickHeight = 1;
+    const brickLength = 0.7;
+    const brickDepth = 0.7;
+    const brickHeight = 1.2;
 
     // Calculate position for each brick
     const x = -1 + i; // Adjust this value according to your desired spacing
-    pos.set(x, 19, -11);
+    pos.set(x, 1, -11);
     quat.set(0, 0, 0, 1);
 
     const brick = createParalellepiped(
@@ -297,7 +297,7 @@ pawnblack.load("testWorld/pawnblack.gltf", async function (gltf) {
     brick.castShadow = false;
     brick.receiveShadow = false;
     brick.material.transparent = true;
-    brick.material.opacity = 1;
+    brick.material.opacity = 0;
 
     // Clone the pawnblack model and add it to the brick
     const pawnblackClone = pawnblackModel.clone();
@@ -306,7 +306,7 @@ pawnblack.load("testWorld/pawnblack.gltf", async function (gltf) {
         node.material.side = THREE.DoubleSide;
         node.castShadow = true;
         node.receiveShadow = true;
-        node.position.y = -0.4;
+        node.position.y = -0.5;
       }
     });
     brick.add(pawnblackClone);
@@ -321,13 +321,13 @@ pawnblack.load("testWorld/pawnblack.gltf", async function (gltf) {
       const objectMass = 0.5;
   
       const x = -1 + i * 7; 
-      pos.set(x, 18, -12); 
+      pos.set(x, 1, -12); 
       quat.set(0, 0, 0, 1); 
   
-      const object = createParalellepiped(
-        0.5, 
-        1,
-        0.5,
+      const object = createCylinder(
+        0.6, 
+        0.6,
+       
         objectMass,
         pos,
         quat,
@@ -336,7 +336,7 @@ pawnblack.load("testWorld/pawnblack.gltf", async function (gltf) {
       object.castShadow = false; 
       object.receiveShadow = false;
       object.material.transparent = true;
-      object.material.opacity = 1;
+      object.material.opacity = 0;
   
       const rookblackClone = rookblackModel.clone();
       rookblackClone.traverse(function (node) {
@@ -344,7 +344,7 @@ pawnblack.load("testWorld/pawnblack.gltf", async function (gltf) {
           node.material.side = THREE.DoubleSide;
           node.castShadow = true;
           node.receiveShadow = true;
-          node.position.y = -0.4;
+          node.position.y = -0.5;
         }
       });
       object.add(rookblackClone);
@@ -360,13 +360,13 @@ knightblack.load("testWorld/knightblack.gltf", async function (gltf) {
     const objectMass = 0.5;
 
     const x = i * 5; 
-    pos.set(x, 18, -12); 
+    pos.set(x, 1, -12); 
     quat.set(0, 0, 0, 1); 
 
     const object = createParalellepiped(
-      0.5, 
-      1,
-      0.5,
+      0.7, 
+      1.55,
+      0.75,
       objectMass,
       pos,
       quat,
@@ -375,7 +375,7 @@ knightblack.load("testWorld/knightblack.gltf", async function (gltf) {
     object.castShadow = false; 
     object.receiveShadow = false;
     object.material.transparent = true;
-    object.material.opacity = 1;
+    object.material.opacity = 0;
 
     const knightblackClone = knightblackModel.clone();
     knightblackClone.traverse(function (node) {
@@ -383,7 +383,7 @@ knightblack.load("testWorld/knightblack.gltf", async function (gltf) {
         node.material.side = THREE.DoubleSide;
         node.castShadow = true;
         node.receiveShadow = true;
-        node.position.y = -0.4;
+        node.position.y = -0.65;
       }
     });
     object.add(knightblackClone);
@@ -399,22 +399,22 @@ bishopblack.load("testWorld/bishopblack.gltf", async function (gltf) {
     const objectMass = 0.5;
 
     const x = 1 + i * 3; 
-    pos.set(x, 18, -12); 
+    pos.set(x, 1, -12); 
     quat.set(0, 0, 0, 1); 
 
-    const object = createParalellepiped(
-      0.5, 
+    const object = createCylinder(
+      
+      0.6,
       1,
-      0.5,
-      objectMass,
-      pos,
-      quat,
-      createMaterial() 
-    );
+       objectMass,
+       pos,
+       quat,
+       createMaterial() 
+     );
     object.castShadow = false; 
     object.receiveShadow = false;
     object.material.transparent = true;
-    object.material.opacity = 1;
+    object.material.opacity = 0;
 
     const bishopblackClone = bishopblackModel.clone();
     bishopblackClone.traverse(function (node) {
@@ -422,7 +422,7 @@ bishopblack.load("testWorld/bishopblack.gltf", async function (gltf) {
         node.material.side = THREE.DoubleSide;
         node.castShadow = true;
         node.receiveShadow = true;
-        node.position.y = -0.4;
+        node.position.y = -0.9;
       }
     });
     object.add(bishopblackClone);
@@ -435,13 +435,13 @@ queenblack.load("testWorld/queenblack.gltf", async function (gltf) {
 
   const objectMass = 0.5;
       
-  pos.set(2, 18, -12); 
+  pos.set(2, 1, -12); 
   quat.set(0, 0, 0, 1); 
 
   const object = createParalellepiped(
-    0.5, 
-    1,
-    0.5,
+    0.75, 
+    2,
+    0.75,
     objectMass,
     pos,
     quat,
@@ -450,14 +450,14 @@ queenblack.load("testWorld/queenblack.gltf", async function (gltf) {
   object.castShadow = false; 
   object.receiveShadow = false;
   object.material.transparent = true;
-  object.material.opacity = 1;
+  object.material.opacity = 0;
   
   queenblackModel.traverse(function (node) {
     if (node.material) {
       node.material.side = THREE.DoubleSide;
       node.castShadow = true;
       node.receiveShadow = true;
-      node.position.y = -0.4;
+      node.position.y = -0.9;
     }
   });
 
@@ -471,29 +471,29 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
 
   const objectMass = 0.5;
       
-  pos.set(3, 18, -12); 
+  pos.set(3, 1, -12); 
   quat.set(0, 0, 0, 1); 
 
-  const object1 = createParalellepiped(
-    0.5, 
-    1,
-    0.5,
-    objectMass,
-    pos,
-    quat,
-    createMaterial() 
-  );
+  const object1 = createCylinder(
+      
+    0.6,
+    1.1,
+     objectMass,
+     pos,
+     quat,
+     createMaterial() 
+   );
   object1.castShadow = false; 
   object1.receiveShadow = false;
   object1.material.transparent = true;
-  object1.material.opacity = 1;
+  object1.material.opacity = 0;
   
   kingblackModel.traverse(function (node) {
     if (node.material) {
       node.material.side = THREE.DoubleSide;
       node.castShadow = true;
       node.receiveShadow = true;
-      node.position.y = -0.4;
+      node.position.y = -0.92;
     }
   });
 
@@ -508,13 +508,13 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
     // Create pawns
     for (let i = 0; i < 8; i++) {
       const brickMass = 0.2;
-      const brickLength = 0.5;
-      const brickDepth = 0.5;
-      const brickHeight = 1;
+      const brickLength = 0.7;
+      const brickDepth = 0.7;
+      const brickHeight = 1.2;
 
       // Calculate position for each brick
       const x = -1 + i; // Adjust this value according to your desired spacing
-      pos.set(x, 19, -5);
+      pos.set(x, 1, -5);
       quat.set(0, 0, 0, 1);
 
       const brick = createParalellepiped(
@@ -529,7 +529,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
       brick.castShadow = false;
       brick.receiveShadow = false;
       brick.material.transparent = true;
-      brick.material.opacity = 1;
+      brick.material.opacity = 0;
 
       // Clone the pawnwhite model and add it to the brick
       const pawnwhiteClone = pawnwhiteModel.clone();
@@ -538,7 +538,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
           node.material.side = THREE.DoubleSide;
           node.castShadow = true;
           node.receiveShadow = true;
-          node.position.y = -0.4;
+          node.position.y = -0.5;
         }
       });
       brick.add(pawnwhiteClone);
@@ -553,13 +553,13 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
       const objectMass = 0.5;
 
       const x = -1 + i * 7; 
-      pos.set(x, 18, -4); 
+      pos.set(x, 1, -4); 
       quat.set(0, 0, 0, 1); 
 
-      const object = createParalellepiped(
-        0.5, 
-        1,
-        0.5,
+      const object = createCylinder(
+        0.6, 
+        0.6,
+       
         objectMass,
         pos,
         quat,
@@ -568,7 +568,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
       object.castShadow = false; 
       object.receiveShadow = false;
       object.material.transparent = true;
-      object.material.opacity = 1;
+      object.material.opacity = 0;
 
       const rookwhiteClone = rookwhiteModel.clone();
       rookwhiteClone.traverse(function (node) {
@@ -576,7 +576,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
           node.material.side = THREE.DoubleSide;
           node.castShadow = true;
           node.receiveShadow = true;
-          node.position.y = -0.4;
+          node.position.y = -0.5;
         }
       });
       object.add(rookwhiteClone);
@@ -592,13 +592,13 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
       const objectMass = 0.5;
 
       const x =  i * 5; 
-      pos.set(x, 5, -4); 
+      pos.set(x, 1, -4); 
       quat.set(0, 0, 0, 1); 
 
       const object = createParalellepiped(
-        0.6, 
-        1.5,
-        0.6,
+        0.7, 
+        1.55,
+        0.75,
         objectMass,
         pos,
         quat,
@@ -607,7 +607,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
       object.castShadow = false; 
       object.receiveShadow = false;
       object.material.transparent = true;
-      object.material.opacity = 1;
+      object.material.opacity = 0;
 
       const knightwhiteClone = knightwhiteModel.clone();
       knightwhiteClone.traverse(function (node) {
@@ -615,7 +615,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
           node.material.side = THREE.DoubleSide;
           node.castShadow = true;
           node.receiveShadow = true;
-          node.position.y = -0.7;
+          node.position.y = -0.65;
           
           
         }
@@ -633,13 +633,13 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
       const objectMass = 0.5;
 
       const x =  1 + i * 3; 
-      pos.set(x, 5, -4); 
+      pos.set(x, 1, -4); 
       quat.set(0, 0, 0, 1); 
 
       const object = createCylinder(
       
-        0.5,
-        0.8,
+        0.6,
+        1,
          objectMass,
          pos,
          quat,
@@ -656,7 +656,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
           node.material.side = THREE.DoubleSide;
           node.castShadow = true;
           node.receiveShadow = true;
-          node.position.y = -0.71;
+          node.position.y = -0.9;
         }
       });
       object.add(bishopwhiteClone);
@@ -670,13 +670,13 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
 
       const objectMass = 0.5;
       
-      pos.set(2, 18, -4); 
+      pos.set(2, 1, -4); 
       quat.set(0, 0, 0, 1); 
 
       const object = createParalellepiped(
-        0.5, 
+        0.75, 
         2,
-        0.5,
+        0.75,
         objectMass,
         pos,
         quat,
@@ -709,13 +709,13 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
 
       const objectMass = 0.5;
       
-      pos.set(3, 4, -4); 
+      pos.set(3, 1, -4); 
       quat.set(0, 0, 0, 1); 
 
       const object1 = createCylinder(
       
-       0.5,
-       1,
+       0.6,
+       1.1,
         objectMass,
         pos,
         quat,
@@ -725,6 +725,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
       object1.receiveShadow = false;
       object1.material.transparent = true;
       object1.material.opacity = 0;
+      
 
       
       kingwhiteModel.traverse(function (node) {
@@ -732,7 +733,7 @@ kingblack.load("testWorld/kingblack.gltf", async function (gltf) {
           node.material.side = THREE.DoubleSide;
           node.castShadow = true;
           node.receiveShadow = true;
-          node.position.y = -0.82;
+          node.position.y = -0.92;
         }
       });
 
@@ -786,11 +787,11 @@ function createGround(sx, sy, sz, mass, pos, quat, material) {
 
 function createCylinder(radius, height, mass, pos, quat, material) {
   const threeObject = new THREE.Mesh(
-      new THREE.CylinderGeometry(radius/2, radius, 1, 16, 1),
+      new THREE.CylinderGeometry(radius/2, radius, 2.3, 16, 1),
       material
   );
 
-  const shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height, radius/2));
+  const shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height, radius/1.5));
   shape.setMargin(margin);
 
   createRigidBody(threeObject, shape, mass, pos, quat);
