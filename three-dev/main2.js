@@ -41,7 +41,7 @@ let INTERSECTION;
 const intersected = [];
 const tempMatrix = new THREE.Matrix4();
 //list of movable objects
-const modelarray = ["cube1", "cube2", "EXAMPLE", "ex2", "ground"];
+const modelarray = ["Bnyu", "Henry", "Korosensei", "TeddyBlock", "Urf"];
 
 let laatikko;
 
@@ -168,7 +168,7 @@ function init() {
   audioLoader = new THREE.AudioLoader();
   audioLoader.load("sounds/Space.mp3", function (buffer) {
     sound.setBuffer(buffer);
-    sound.setRefDistance(10);
+    sound.setRefDistance(7);
     sound.play();
   });
 
@@ -179,9 +179,10 @@ function init() {
   audioLoader2 = new THREE.AudioLoader();
   audioLoader2.load("sounds/Beach.mp3", function (buffer) {
     sound2.setBuffer(buffer);
-    sound2.setRefDistance(5);
+    sound2.setRefDistance(4);
     sound2.play();
   });
+
   updateLight();
 }
 
@@ -1125,11 +1126,25 @@ function loadmodels() {
       //   Example.add(model);
       // });
 
+      const loaderGround = new GLTFLoader().setPath(basePath);
+      loaderGround.load("kupoli/ground.gltf", async function (gltf) {
+        const ground = gltf.scene;
+        await renderer.compileAsync(ground, camera, scene);
+        ground.traverse(function (node) {
+          if (node.material) {
+            node.material.side = THREE.DoubleSide;
+            node.castShadow = true;
+            node.receiveShadow = true;
+            node.material.scale = 0.5;
+          }
+        });
+        teleportgroup.add(ground);
+      });
+
       const loaderBase = new GLTFLoader().setPath(basePath);
-      loaderBase.load("kupoli/base.gltf", async function (gltf) {
+      loaderBase.load("kupoli/kupoli.gltf", async function (gltf) {
         const base = gltf.scene;
         await renderer.compileAsync(base, camera, scene);
-        base.position.set(0, 0, 0);
         base.traverse(function (node) {
           if (node.material) {
             node.material.side = THREE.DoubleSide;
@@ -1138,7 +1153,7 @@ function loadmodels() {
             node.material.scale = 0.5;
           }
         });
-        teleportgroup.add(base);
+        scene.add(base);
       });
 
       const loaderObjects = new GLTFLoader().setPath(basePath);
@@ -1153,7 +1168,22 @@ function loadmodels() {
             node.receiveShadow = true;
           }
         });
-        scene.add(objects);
+        movegroup.add(objects);
+      });
+
+      const loaderStatic = new GLTFLoader().setPath(basePath);
+      loaderStatic.load("static/static.gltf", async function (gltf) {
+        const staticModel = gltf.scene;
+        await renderer.compileAsync(staticModel, camera, scene);
+        //Adds shadows to the model
+        staticModel.traverse(function (node) {
+          if (node.material) {
+            node.material.side = THREE.FrontSide;
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        scene.add(staticModel);
       });
 
       const loaderRadio = new GLTFLoader().setPath(basePath);
@@ -1169,6 +1199,14 @@ function loadmodels() {
             node.receiveShadow = true;
           }
         });
+
+        radio1.traverse(function (object) {
+          if (object.isMesh) {
+            object.geometry.rotateY(-Math.PI);
+            object.castShadow = true;
+          }
+        });
+
         scene.add(radio1);
         radio1.add(sound);
       });
@@ -1197,9 +1235,9 @@ function loadmodels() {
 
         console.log("model6", gltf);
 
-        // mixer = new THREE.AnimationMixer(gltf.scene);
-        // const clips = gltf.animations;
-        // mixer.clipAction(clips[1]).play();
+        mixer = new THREE.AnimationMixer(gltf.scene);
+        const clips = gltf.animations;
+        mixer.clipAction(clips[0]).play();
 
         model6.traverse(function (node) {
           if (node.material) {
