@@ -41,7 +41,7 @@ let INTERSECTION;
 const intersected = [];
 const tempMatrix = new THREE.Matrix4();
 //list of movable objects
-const modelarray = ["Bnyu", "Henry", "Korosensei", "TeddyBlock", "Urf"];
+const modelarray = ["Bnyu", "Henry", "Korosensei", "TeddyBlock", "Urf", "physics", "ground"];
 
 let laatikko;
 
@@ -995,7 +995,7 @@ function createParalellepiped(sx, sy, sz, mass, pos, quat, material) {
   shape.setMargin(margin);
 
   createRigidBody(threeObject, shape, mass, pos, quat);
-  threeObject.name = "ex2";
+  threeObject.name = "physics";
   laatikko = threeObject;
   movegroup.add(threeObject);
   return threeObject;
@@ -1032,7 +1032,7 @@ function createCylinder(radius, height, mass, pos, quat, material) {
   shape.scale;
 
   createRigidBody(threeObject, shape, mass, pos, quat);
-  threeObject.name = "ex2";
+  threeObject.name = "physics";
   laatikko = threeObject;
   movegroup.add(threeObject);
   return threeObject;
@@ -1050,7 +1050,7 @@ function createCylinderBlock(radius, height, mass, pos, quat, material) {
   shape.scale;
 
   createRigidBody(threeObject, shape, mass, pos, quat);
-  threeObject.name = "ex2";
+  threeObject.name = "physics";
   laatikko = threeObject;
   movegroup.add(threeObject);
   return threeObject;
