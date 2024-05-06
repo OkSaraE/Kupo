@@ -4,6 +4,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { VRButton } from "three/addons/webxr/VRButton.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
+import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
 
 //For Vite build
 let basePath;
@@ -217,13 +218,13 @@ function loadmodels() {
 
       // Test models Delete Later
       const loader = new GLTFLoader().setPath(basePath);
-      loader.load("kupoli/testing.gltf", async function (gltf) {
+      loader.load("kupoli/base.gltf", async function (gltf) {
         const model = gltf.scene;
         await renderer.compileAsync(model, camera, scene);
         model.position.set(0, 0, 0);
         model.traverse(function (node) {
           if (node.material) {
-            node.material.side = THREE.FrontSide;
+            node.material.side = THREE.DoubleSide;
             node.castShadow = true;
             node.receiveShadow = true;
           }
@@ -232,7 +233,7 @@ function loadmodels() {
       });
 
       const loader2 = new GLTFLoader().setPath(basePath);
-      loader2.load("testWorld/objects.gltf", async function (gltf) {
+      loader2.load("objects/objects.gltf", async function (gltf) {
         const model2 = gltf.scene;
         await renderer.compileAsync(model2, camera, scene);
         model2.position.set(0, 0, 0);
@@ -247,10 +248,10 @@ function loadmodels() {
       });
 
       const loader3 = new GLTFLoader().setPath(basePath);
-      loader3.load("testWorld/Radio.gltf", async function (gltf) {
+      loader3.load("static/static.gltf", async function (gltf) {
         const model3 = gltf.scene;
         await renderer.compileAsync(model3, camera, scene);
-        model3.position.set(30, 0, 30);
+        model3.position.set(0, 0, 0);
         model3.traverse(function (node) {
           if (node.material) {
             node.material.side = THREE.FrontSide;
@@ -259,7 +260,6 @@ function loadmodels() {
           }
         });
         scene.add(model3);
-        model3.add(sound);
       });
     });
 }
