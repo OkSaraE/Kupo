@@ -147,7 +147,7 @@ function init() {
   scene.add(axesHelper);
 
   const color = 0xffffff;
-  const intensity = 50;
+  const intensity = 5;
   const light = new THREE.AmbientLight(color, intensity);
   scene.add(light);
 
@@ -182,6 +182,48 @@ function init() {
     sound2.setRefDistance(5);
     sound2.play();
   });
+  updateLight();
+}
+
+function updateLight() {
+  const color1 = 0xff3090;
+  const color2 = 0x60ffff;
+  const intensity = 3550;
+  const lightBlocks = new THREE.SpotLight(color1, intensity);
+  scene.add(lightBlocks);
+  scene.add(lightBlocks.target);
+  lightBlocks.position.set(-19, 20, -9);
+  lightBlocks.target.position.set(-60, 0, -10);
+
+  /*  
+const helper1 = new THREE.SpotLightHelper(lightBlocks);
+scene.add(helper1);
+helper1.update(); */
+
+  const lightChess = new THREE.SpotLight(color2, intensity);
+  scene.add(lightChess);
+  scene.add(lightChess.target);
+  lightChess.position.set(10, 20, 20);
+  lightChess.target.position.set(10, 0, 50);
+
+  /* 
+ 
+const helper2 = new THREE.SpotLightHelper(lightChess);
+scene.add(helper2);
+helper2.update(); */
+
+  const color3 = 0x6060ff;
+  const intensity2 = 5550;
+  const lightBeach = new THREE.SpotLight(color3, intensity2);
+  scene.add(lightBeach);
+  scene.add(lightBeach.target);
+  lightBeach.position.set(20, 20, -20);
+  lightBeach.target.position.set(30, 0, -30);
+
+  /* 
+const helper3 = new THREE.SpotLightHelper(lightBeach);
+scene.add(helper3);
+helper3.update(); */
 }
 
 function initVR() {
