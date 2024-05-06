@@ -33,7 +33,7 @@ let transformAux1;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 let raycaster;
-let clock, mixer;
+let clock, mixer, mixer2;
 
 let marker, baseReferenceSpace;
 let INTERSECTION;
@@ -57,10 +57,14 @@ movegroup.name = "Interaction-Group";
 Ammo().then(function (AmmoLib) {
   Ammo = AmmoLib;
 
-  init();
+  const startButton = document.getElementById("startButton");
+  startButton.addEventListener("click", init);
 });
 
 function init() {
+  const overlay = document.getElementById("overlay");
+  overlay.remove();
+
   container = document.createElement("div");
   document.body.appendChild(container);
 
@@ -179,7 +183,7 @@ function init() {
   audioLoader2 = new THREE.AudioLoader();
   audioLoader2.load("sounds/Beach.mp3", function (buffer) {
     sound2.setBuffer(buffer);
-    sound2.setRefDistance(4);
+    sound2.setRefDistance(5);
     sound2.play();
   });
 
@@ -1187,23 +1191,21 @@ function loadmodels() {
       });
 
       const loaderRadio = new GLTFLoader().setPath(basePath);
-      loaderRadio.load("radio/Radio.gltf", async function (gltf) {
+      loaderRadio.load("radio/Radio.glb", async function (gltf) {
         const radio1 = gltf.scene;
         await renderer.compileAsync(radio1, camera, scene);
-        radio1.position.set(0, 3, 60);
+        radio1.scale.set(3, 3, 3);
+        radio1.position.set(-35, 1, 35);
         radio1.rotation.set(0, 180, 0);
+
+        mixer2 = new THREE.AnimationMixer(gltf.scene);
+        const clips = gltf.animations;
+        mixer2.clipAction(clips[0]).play();
         radio1.traverse(function (node) {
           if (node.material) {
             node.material.side = THREE.FrontSide;
             node.castShadow = true;
             node.receiveShadow = true;
-          }
-        });
-
-        radio1.traverse(function (object) {
-          if (object.isMesh) {
-            object.geometry.rotateY(-Math.PI);
-            object.castShadow = true;
           }
         });
 
@@ -1226,30 +1228,30 @@ function loadmodels() {
         scene.add(radio2);
         radio2.add(sound2);
       });
-const loader6 = new GLTFLoader().setPath(basePath);
-        loader6.load("objects/book.glb", async function (gltf) {
-          const model6 = gltf.scene;
 
-          // wait until the model can be added to the scene without blocking due to shader compilation
+      const loader6 = new GLTFLoader().setPath(basePath);
+      loader6.load("book/book.glb", async function (gltf) {
+        const model6 = gltf.scene;
 
-          await renderer.compileAsync(model6, camera, scene);
-          
-          
-          console.log("model6", gltf);
-          /* group.add(model); */
-          scene.add(model6);
+        // wait until the model can be added to the scene without blocking due to shader compilation
 
-          mixer = new THREE.AnimationMixer(gltf.scene);
-          const clips = gltf.animations;
-          mixer.clipAction(clips[0]).play();
-          model6.traverse(function (node) {
-            if (node.material) {
-              node.material.side = THREE.FrontSide;
-              node.castShadow = true;
-              node.receiveShadow = true;
-            }
-          });
+        await renderer.compileAsync(model6, camera, scene);
+
+        console.log("model6", gltf);
+        /* group.add(model); */
+        scene.add(model6);
+
+        mixer = new THREE.AnimationMixer(gltf.scene);
+        const clips = gltf.animations;
+        mixer.clipAction(clips[0]).play();
+        model6.traverse(function (node) {
+          if (node.material) {
+            node.material.side = THREE.FrontSide;
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
         });
+      });
     });
 }
 
@@ -1467,9 +1469,12 @@ function render() {
   updatePhysics(deltaTime);
   moveMarker();
   renderer.render(scene, camera);
-  
+
   if (mixer !== undefined) {
     mixer.update(deltaTime);
+  }
+  if (mixer2 !== undefined) {
+    mixer2.update(deltaTime);
   }
 }
 function updatePhysics(deltaTime) {
