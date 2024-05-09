@@ -4,5 +4,5 @@ export default {
   build: {
     outDir: "../build",
   },
-  base: "/~albins/threejs/",
+  // base: "/~saraok/kupo/",
 };

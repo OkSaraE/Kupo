@@ -11,7 +11,7 @@ import { degrees } from "three/examples/jsm/nodes/Nodes.js";
 let basePath;
 
 if (import.meta.env.MODE === "production") {
-  basePath = "/~saraok/kupoli/";
+  basePath = "/~saraok/kupo/";
 } else {
   basePath = "/";
 }
@@ -41,7 +41,15 @@ let INTERSECTION;
 const intersected = [];
 const tempMatrix = new THREE.Matrix4();
 //list of movable objects
-const modelarray = ["Bnyu", "Henry", "Korosensei", "TeddyBlock", "Urf", "physics", "ground"];
+const modelarray = [
+  "Bnyu",
+  "Henry",
+  "Korosensei",
+  "TeddyBlock",
+  "Urf",
+  "physics",
+  "ground",
+];
 
 let laatikko;
 
@@ -184,7 +192,7 @@ function init() {
   audioLoader2 = new THREE.AudioLoader();
   audioLoader2.load("sounds/Beach.mp3", function (buffer) {
     sound2.setBuffer(buffer);
-    sound2.setVolume(1.2);
+    sound2.setVolume(1.5);
     sound2.setRefDistance(5);
     sound2.play();
   });
@@ -276,16 +284,6 @@ function initVR() {
     controllerModelFactory.createControllerModel(controllerGrip2)
   ); */
   scene.add(controllerGrip2);
-
-  const loader = new GLTFLoader().setPath(basePath);
-  loader.load("testWorld/scene.gltf", async function (gltf) {
-    gltf.scene.scale.set(0.0003, 0.0003, 0.0003);
-    let mymodel = gltf.scene;
-    mymodel.rotation.y = THREE.MathUtils.degToRad(180);
-    mymodel.rotation.x = THREE.MathUtils.degToRad(-36.5);
-    mymodel.position.set(0, 0.01, 0);
-    controllerGrip2.add(mymodel);
-  });
 
   const geometry = new THREE.BufferGeometry().setFromPoints([
     new THREE.Vector3(0, 0, 0),
@@ -394,19 +392,18 @@ function createObjects() {
   buildArc.load("Ready/BuildArc.gltf", async function (gltf) {
     const buildArcModel = gltf.scene;
     await renderer.compileAsync(buildArcModel, camera, scene);
-  
-    
+
     for (let i = 0; i < 3; i++) {
       const brickMass = 0.2;
       const brickLength = 2.01;
       const brickDepth = 4.01;
       const brickHeight = 2.01;
-  
+
       // Calculate position for each brick
-      const x = -8 + i; 
-      pos.set(x*5, 5, -16);
+      const x = -8 + i;
+      pos.set(x * 5, 5, -16);
       quat.set(0, 0, 0, 1);
-  
+
       const brick = createParalellepiped(
         brickDepth,
         brickHeight,
@@ -420,7 +417,7 @@ function createObjects() {
       brick.receiveShadow = false;
       brick.material.transparent = true;
       brick.material.opacity = 0;
-  
+
       // Clone the pawnblack model and add it to the brick
       const buildArcClone = buildArcModel.clone();
       buildArcClone.traverse(function (node) {
@@ -428,9 +425,7 @@ function createObjects() {
           node.material.side = THREE.DoubleSide;
           node.castShadow = true;
           node.receiveShadow = true;
-          node.position.y = 0
-          ;
-          
+          node.position.y = 0;
         }
       });
       brick.add(buildArcClone);
@@ -1108,153 +1103,166 @@ function onWindowResize() {
 
 //Loading models to the world
 function loadmodels() {
-  new RGBELoader()
-    .setPath(basePath)
-    .load("hdr/starsky.hdr", function (texture) {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      scene.background = texture;
-      scene.environment = texture;
+  new RGBELoader().setPath(basePath).load("hdr/sky.hdr", function (texture) {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = texture;
+    scene.environment = texture;
 
-      //Example code to add new models
-      //   const loader = new GLTFLoader().setPath(basePath);
-      // loader.load("EXAMPLE/EXAMPLE.GTLF", async function (gltf) {
-      //   const model = gltf.scene;
-      //   model.name = "EXAMPLE";
-      //   await renderer.compileAsync(model, camera, scene);
-      //   //Adds shadows to the model
-      //   model.traverse(function (node) {
-      //     if (node.material) {
-      //       node.material.side = THREE.FrontSide;
-      //       node.castShadow = true;
-      //       node.receiveShadow = true;
-      //     }
-      //   });
-      //   Example.add(model);
-      // });
+    //Example code to add new models
+    //   const loader = new GLTFLoader().setPath(basePath);
+    // loader.load("EXAMPLE/EXAMPLE.GTLF", async function (gltf) {
+    //   const model = gltf.scene;
+    //   model.name = "EXAMPLE";
+    //   await renderer.compileAsync(model, camera, scene);
+    //   //Adds shadows to the model
+    //   model.traverse(function (node) {
+    //     if (node.material) {
+    //       node.material.side = THREE.FrontSide;
+    //       node.castShadow = true;
+    //       node.receiveShadow = true;
+    //     }
+    //   });
+    //   Example.add(model);
+    // });
 
-      const loaderGround = new GLTFLoader().setPath(basePath);
-      loaderGround.load("kupoli/ground.gltf", async function (gltf) {
-        const ground = gltf.scene;
-        await renderer.compileAsync(ground, camera, scene);
-        ground.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.DoubleSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-            node.material.scale = 0.5;
-          }
-        });
-        teleportgroup.add(ground);
+    const loaderGround = new GLTFLoader().setPath(basePath);
+    loaderGround.load("base/ground.gltf", async function (gltf) {
+      const ground = gltf.scene;
+      await renderer.compileAsync(ground, camera, scene);
+      ground.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.material.scale = 0.5;
+        }
+      });
+      teleportgroup.add(ground);
+    });
+
+    const loaderBase = new GLTFLoader().setPath(basePath);
+    loaderBase.load("base/dome.gltf", async function (gltf) {
+      const base = gltf.scene;
+      await renderer.compileAsync(base, camera, scene);
+      base.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+          node.material.scale = 0.5;
+        }
+      });
+      scene.add(base);
+    });
+
+    const loaderObjects = new GLTFLoader().setPath(basePath);
+    loaderObjects.load("objects/objects.gltf", async function (gltf) {
+      const objects = gltf.scene;
+      await renderer.compileAsync(objects, camera, scene);
+      //Adds shadows to the model
+      objects.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.FrontSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
+      });
+      movegroup.add(objects);
+    });
+
+    const loaderNappulat = new GLTFLoader().setPath(basePath);
+    loaderNappulat.load("objects/nappulat.gltf", async function (gltf) {
+      const nappulat = gltf.scene;
+      await renderer.compileAsync(nappulat, camera, scene);
+      //Adds shadows to the model
+      nappulat.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
+      });
+      scene.add(nappulat);
+    });
+
+    const loaderStatic = new GLTFLoader().setPath(basePath);
+    loaderStatic.load("static/static.gltf", async function (gltf) {
+      const staticModel = gltf.scene;
+      await renderer.compileAsync(staticModel, camera, scene);
+      //Adds shadows to the model
+      staticModel.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.FrontSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
+      });
+      scene.add(staticModel);
+    });
+
+    const loaderRadio = new GLTFLoader().setPath(basePath);
+    loaderRadio.load("radio/Radio.glb", async function (gltf) {
+      const radio1 = gltf.scene;
+      await renderer.compileAsync(radio1, camera, scene);
+      radio1.scale.set(3, 3, 3);
+      radio1.position.set(-35, 1, 35);
+      radio1.rotation.set(0, 180, 0);
+
+      mixer2 = new THREE.AnimationMixer(gltf.scene);
+      const clips = gltf.animations;
+      mixer2.clipAction(clips[0]).play();
+      radio1.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.FrontSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
       });
 
-      const loaderBase = new GLTFLoader().setPath(basePath);
-      loaderBase.load("kupoli/kupoli.gltf", async function (gltf) {
-        const base = gltf.scene;
-        await renderer.compileAsync(base, camera, scene);
-        base.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.DoubleSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-            node.material.scale = 0.5;
-          }
-        });
-        scene.add(base);
+      scene.add(radio1);
+      radio1.add(sound);
+    });
+
+    const loaderRadio2 = new GLTFLoader().setPath(basePath);
+    loaderRadio2.load("radio/radio2.gltf", async function (gltf) {
+      const radio2 = gltf.scene;
+      await renderer.compileAsync(radio2, camera, scene);
+      radio2.position.set(40, -2, -40);
+      radio2.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.FrontSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
       });
+      scene.add(radio2);
+      radio2.add(sound2);
+    });
 
-      const loaderObjects = new GLTFLoader().setPath(basePath);
-      loaderObjects.load("objects/objects.gltf", async function (gltf) {
-        const objects = gltf.scene;
-        await renderer.compileAsync(objects, camera, scene);
-        //Adds shadows to the model
-        objects.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.FrontSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
-        movegroup.add(objects);
-      });
+    const loader6 = new GLTFLoader().setPath(basePath);
+    loader6.load("book/book.glb", async function (gltf) {
+      const model6 = gltf.scene;
 
-      const loaderStatic = new GLTFLoader().setPath(basePath);
-      loaderStatic.load("static/static.gltf", async function (gltf) {
-        const staticModel = gltf.scene;
-        await renderer.compileAsync(staticModel, camera, scene);
-        //Adds shadows to the model
-        staticModel.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.FrontSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
-        scene.add(staticModel);
-      });
+      // wait until the model can be added to the scene without blocking due to shader compilation
 
-      const loaderRadio = new GLTFLoader().setPath(basePath);
-      loaderRadio.load("radio/Radio.glb", async function (gltf) {
-        const radio1 = gltf.scene;
-        await renderer.compileAsync(radio1, camera, scene);
-        radio1.scale.set(3, 3, 3);
-        radio1.position.set(-35, 1, 35);
-        radio1.rotation.set(0, 180, 0);
+      await renderer.compileAsync(model6, camera, scene);
 
-        mixer2 = new THREE.AnimationMixer(gltf.scene);
-        const clips = gltf.animations;
-        mixer2.clipAction(clips[0]).play();
-        radio1.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.FrontSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
+      console.log("model6", gltf);
+      /* group.add(model); */
+      scene.add(model6);
 
-        scene.add(radio1);
-        radio1.add(sound);
-      });
-
-      const loaderRadio2 = new GLTFLoader().setPath(basePath);
-      loaderRadio2.load("radio/radio2.gltf", async function (gltf) {
-        const radio2 = gltf.scene;
-        await renderer.compileAsync(radio2, camera, scene);
-        radio2.position.set(40, -2, -40);
-        radio2.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.FrontSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
-        scene.add(radio2);
-        radio2.add(sound2);
-      });
-
-      const loader6 = new GLTFLoader().setPath(basePath);
-      loader6.load("book/book.glb", async function (gltf) {
-        const model6 = gltf.scene;
-
-        // wait until the model can be added to the scene without blocking due to shader compilation
-
-        await renderer.compileAsync(model6, camera, scene);
-
-        console.log("model6", gltf);
-        /* group.add(model); */
-        scene.add(model6);
-
-        mixer = new THREE.AnimationMixer(gltf.scene);
-        const clips = gltf.animations;
-        mixer.clipAction(clips[0]).play();
-        model6.traverse(function (node) {
-          if (node.material) {
-            node.material.side = THREE.FrontSide;
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
+      mixer = new THREE.AnimationMixer(gltf.scene);
+      const clips = gltf.animations;
+      mixer.clipAction(clips[0]).play();
+      model6.traverse(function (node) {
+        if (node.material) {
+          node.material.side = THREE.FrontSide;
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
       });
     });
+  });
 }
 
 //Controller functions
